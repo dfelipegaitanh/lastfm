@@ -2,7 +2,7 @@
 
 namespace App\Http\Classes;
 
-class LastFmController
+class LastFm
 {
 
 }
