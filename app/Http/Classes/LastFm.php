@@ -3,9 +3,11 @@
 namespace App\Http\Classes;
 
 use Barryvanveen\Lastfm\Constants;
+use Barryvanveen\Lastfm\DataFetcher;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
 use GuzzleHttp\Client;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class LastFm extends \Barryvanveen\Lastfm\Lastfm
 {
@@ -14,14 +16,14 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     private array      $userInfo;
     private array|bool $nowListening;
     private int        $limit;
-    private int $min_plays;
+    private int        $min_plays;
 
     public function __construct(Client $client)
     {
         parent::__construct($client , config('lastfm.api_key'));
         $this->limit        = config('lastfm.limit');
         $this->username     = config('lastfm.user');
-        $this->min_plays     = config('lastfm.min_plays');
+        $this->min_plays    = config('lastfm.min_plays');
         $this->userInfo     = $this->getUserInfo();
         $this->nowListening = $this->getNowListening();
     }
@@ -73,10 +75,15 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         return parent::nowListening($this->username);
     }
 
+    /**
+     * @param  Carbon  $initDate
+     * @param  int  $months
+     * @return void
+     */
     public function getUserTopTracksPeriodTimeByMonths(Carbon $initDate , int $months = 1)
     {
         $songs = collect();
-        for ($i = 0; $i < 10; $i++) {
+        while ($initDate->year <= 2023) {
             $this->query = array_merge($this->query , [
                 'method' => 'user.getWeeklyTrackChart' ,
                 'user'   => $this->username ,
@@ -86,13 +93,26 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
             ]);
 
             $this->pluck = 'weeklytrackchart.track';
-            $songs->push($this->get());
+            dd($this->getCollection());
+            $songs->push(
+                $this->getCollection()
+                     ->filter(function ($song) {
+                         return collect($song)->get('playcount' , 0) >= 5 && collect($song)->get('playcount' , 0) <= 10;
+                     }));
 
             $initDate->addSecond();
         }
 
 
         dd($songs->flatten(1));
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getCollection() : Collection
+    {
+        return collect($this->get());
     }
 
 }
