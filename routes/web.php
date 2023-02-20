@@ -15,3 +15,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [LastFmController::class, 'index']);
+Route::get('/topAlbums', [LastFmController::class, 'topAlbums']);
