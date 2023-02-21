@@ -3,7 +3,6 @@
 namespace App\Http\Classes;
 
 use Barryvanveen\Lastfm\Constants;
-use Barryvanveen\Lastfm\DataFetcher;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
 use GuzzleHttp\Client;
 use Illuminate\Support\Carbon;
@@ -22,10 +21,10 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     {
         parent::__construct($client , config('lastfm.api_key'));
         $this->limit        = config('lastfm.limit');
-        $this->username     = config('lastfm.user');
+//        $this->username     = config('lastfm.user');
         $this->min_plays    = config('lastfm.min_plays');
-        $this->userInfo     = $this->getUserInfo();
-        $this->nowListening = $this->getNowListening();
+//        $this->userInfo     = $this->getUserInfo();
+//        $this->nowListening = $this->getNowListening();
     }
 
     /**
@@ -56,6 +55,14 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
                      ->period(Constants::PERIOD_WEEK)
                      ->limit(10)
                      ->get();
+    }
+
+    /**
+     * @param  string  $username
+     */
+    public function setUsername(string $username) : void
+    {
+        $this->username = $username;
     }
 
     /**

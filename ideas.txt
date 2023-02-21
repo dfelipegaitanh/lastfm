@@ -1,0 +1,9 @@
+Comando necesita tener las siguientes opciones
+    user
+    yearInit (default, 2006)
+    monthInit (default 4, April)
+    yearEnd (default, actual year)
+    monthEnd (default, actual month)
+
+Base de datos
+
