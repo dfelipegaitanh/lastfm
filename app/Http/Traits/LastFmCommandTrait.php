@@ -3,11 +3,13 @@
 namespace App\Http\Traits;
 
 use App\Http\Classes\LastFm;
-use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 trait LastFmCommandTrait
 {
+
+    use DateTraits;
 
     /**
      * @return string
@@ -18,40 +20,53 @@ trait LastFmCommandTrait
     }
 
     /**
-     * @return Carbon
+     * @return Collection
      */
-    public function getInitDate() : Carbon
+    public function getDates() : Collection
     {
-        return Carbon::create(
-            $this->getInitYear($this->option('initYear')) ,
-            $this->getInitMonth($this->option('initMonth'))
-        );
+        $initDate = $this->getInitDate();
+        return collect([
+                           'initDate' => $initDate ,
+                           'endDate'  => $this->getEndDate($initDate)
+                       ]);
     }
 
-    /**
-     * @param  string|null  $initMonth
-     * @return string
-     */
-    public function getInitMonth(?string $initMonth) : string
-    {
-        return is_null($initMonth) ? config('lastfm.init_month') : $initMonth;
-    }
-
-    /**
-     * @param  string|null  $initYear
-     * @return string
-     */
-    public function getInitYear(?string $initYear) : string
-    {
-        return is_null($initYear) ? config('lastfm.init_year') : $initYear;
-    }
 
     /**
      * @param  LastFm  $lastFm
      * @return void
      */
-    public function setUpLastFm(LastFm &$lastFm){
+    public function setUpLastFm(LastFm &$lastFm) : void
+    {
         $lastFm->setUsername($this->getUsername());
+        $lastFm->setDates($this->getDates());
+    }
+
+    /**
+     * @return false|Carbon
+     */
+    public function getInitDate() : Carbon|false
+    {
+        return Carbon::create(
+            (int) ($this->option('initYear') ?? config('lastfm.init_year')) ,
+            $this->validMonth($this->option('initMonth')) ?? 1);
+    }
+
+    /**
+     * @param  Carbon  $initDate
+     * @return Carbon
+     */
+    public function getEndDate(Carbon $initDate) : Carbon
+    {
+        $endDate = Carbon::create(
+            (int) ($this->option('endYear') ?? config('lastfm.end_year')) ,
+            $this->validMonth($this->option('endMonth') , true) ?? 12);
+
+        if ($initDate->greaterThan($endDate)) {
+            $endDate = $initDate;
+        }
+
+        return $endDate;
     }
 
 }

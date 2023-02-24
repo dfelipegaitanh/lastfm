@@ -10,8 +10,6 @@ return [
     'limit'      => env('LASTFM_LIMIT' , 10) ,
     'min_plays'  => env('LASTFM_MIN_PLAYS' , 30) ,
     'init_year'  => env('LASTFM_INIT_YEAR' , 2006) ,
-    'init_month' => env('LASTFM_INIT_MONTH' , 4) ,
     'end_year'   => (new \Illuminate\Support\Carbon())->year ,
-    'end_month'  => (new \Illuminate\Support\Carbon())->month ,
 
 ];

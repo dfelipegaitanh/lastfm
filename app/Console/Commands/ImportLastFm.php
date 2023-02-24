@@ -32,15 +32,6 @@ class ImportLastFm extends Command
     public function handle(LastFm $lastFm) : void
     {
         $this->setUpLastFm($lastFm);
-        dd($lastFm);
-
-
-
-        dd( $lastFm,
-            $this->getInitDate() //)->format('Y-m-d')
-        );
-
-        dd($this->arguments(), $this->options());
     }
 
 }

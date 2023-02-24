@@ -11,23 +11,21 @@ use Illuminate\Support\Collection;
 class LastFm extends \Barryvanveen\Lastfm\Lastfm
 {
 
-    private string     $username;
-    private array      $userInfo;
-    private array|bool $nowListening;
-    private int        $limit;
-    private int        $min_plays;
+    protected Carbon $initDate;
+    protected Carbon $endDate;
+    protected string $username;
+    protected int    $limit;
+    protected int    $min_plays;
 
     public function __construct(Client $client)
     {
         parent::__construct($client , config('lastfm.api_key'));
-        $this->limit        = config('lastfm.limit');
-//        $this->username     = config('lastfm.user');
-        $this->min_plays    = config('lastfm.min_plays');
-//        $this->userInfo     = $this->getUserInfo();
-//        $this->nowListening = $this->getNowListening();
+        $this->limit     = config('lastfm.limit');
+        $this->min_plays = config('lastfm.min_plays');
     }
 
     /**
+     * @param $initDate
      * @return array
      */
     public function getUserWeeklyTopTracks($initDate) : array
@@ -63,6 +61,31 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function setUsername(string $username) : void
     {
         $this->username = $username;
+    }
+
+    /**
+     * @param  Collection  $dates
+     */
+    public function setDates(Collection $dates) : void
+    {
+        $this->setInitDate($dates->get('initDate'));
+        $this->setEndDate($dates->get('endDate'));
+    }
+
+    /**
+     * @param  Carbon  $initDate
+     */
+    public function setInitDate(Carbon $initDate) : void
+    {
+        $this->initDate = $initDate;
+    }
+
+    /**
+     * @param  Carbon  $endDate
+     */
+    public function setEndDate(Carbon $endDate) : void
+    {
+        $this->endDate = $endDate;
     }
 
     /**
