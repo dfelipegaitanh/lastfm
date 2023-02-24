@@ -40,6 +40,7 @@ trait LastFmCommandTrait
     {
         $lastFm->setUsername($this->getUsername());
         $lastFm->setDates($this->getDates());
+        $lastFm->setLimit($this->option('limit'));
     }
 
     /**

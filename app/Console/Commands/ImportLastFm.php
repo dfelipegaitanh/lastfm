@@ -16,7 +16,7 @@ class ImportLastFm extends Command
      *
      * @var string
      */
-    protected $signature = 'lastfm:import {user?} {--initYear=} {--initMonth=} {--endYear=} {--endMonth=}';
+    protected $signature = 'lastfm:import {user?} {--initYear=} {--initMonth=} {--endYear=} {--endMonth=} {--limit=}';
 
     /**
      * The console command description.

@@ -20,7 +20,6 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function __construct(Client $client)
     {
         parent::__construct($client , config('lastfm.api_key'));
-        $this->limit     = config('lastfm.limit');
         $this->min_plays = config('lastfm.min_plays');
     }
 
@@ -30,6 +29,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getUserWeeklyTopTracks() : array
     {
         return $this->userWeeklyTopTracks($this->username , Carbon::today()->subWeek())
+                    ->limit($this->limit)
                     ->get();
     }
 
@@ -60,6 +60,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function setUsername(string $username) : void
     {
         $this->username = $username;
+    }
+
+    public function setLimit(?string $limit)
+    {
+        $this->limit = is_null($limit) ? (int) config('lastfm.limit') : (int) $limit;
     }
 
     /**
