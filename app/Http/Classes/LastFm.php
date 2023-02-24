@@ -25,12 +25,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param $initDate
      * @return array
      */
-    public function getUserWeeklyTopTracks($initDate) : array
+    public function getUserWeeklyTopTracks() : array
     {
-        return $this->userWeeklyTopTracks($this->username , $initDate)
+        return $this->userWeeklyTopTracks($this->username , Carbon::today()->subWeek())
                     ->get();
     }
 
