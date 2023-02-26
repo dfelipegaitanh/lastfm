@@ -13,6 +13,9 @@ Importes
     * Trimensuales
     * Semestrales
     * Anuales
+    * Love Songs
 
 Base de datos
+    * Artist
+    * Song
 

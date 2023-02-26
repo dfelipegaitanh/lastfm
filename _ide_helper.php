@@ -18044,11 +18044,12 @@
          * 
          *
          * @see \App\Providers\LastFmProvider::boot()
+         * @param int $min_plays
          * @static 
          */ 
-        public static function minPlays()
+        public static function minPlays($min_plays)
         {
-                        return \Illuminate\Support\Collection::minPlays();
+                        return \Illuminate\Support\Collection::minPlays($min_plays);
         }
          
     }

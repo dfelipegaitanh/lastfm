@@ -2,6 +2,8 @@
 
 namespace App\Http\Classes;
 
+use App\Http\Traits\LastFmTrait;
+use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
 use GuzzleHttp\Client;
@@ -11,11 +13,14 @@ use Illuminate\Support\Collection;
 class LastFm extends \Barryvanveen\Lastfm\Lastfm
 {
 
-    protected Carbon $initDate;
-    protected Carbon $endDate;
-    protected string $username;
-    protected int    $limit;
-    protected int    $min_plays;
+    use LastFmTrait;
+
+    protected Carbon     $initDate;
+    protected Carbon     $endDate;
+    protected string     $username;
+    protected int        $limit;
+    protected int        $min_plays;
+    protected LastFmUser $lastFmUser;
 
     public function __construct(Client $client)
     {
@@ -31,25 +36,29 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
                     ->getData();
     }
 
-    public function getLovedTracks() : Collection
-    {
-
-        $this->query = array_merge($this->query, [
-            'method' => 'user.getLovedTracks',
-            'user'   => $this->username,
-        ]);
-        dd($this->get()); // getLovedTracks
-    }
-
-
     /**
+     * @param  int  $limit
      * @return Collection
      */
-    public function getData() : Collection
+    public function getLovedTracks(int $limit = 100) : Collection
     {
-        return collect(parent::get())
-            ->toCollection()
-            ->minPlays($this->min_plays);
+
+        $this->queryLoveTracks($limit);
+        $this->pluck = 'lovedtracks';
+        $attr        = $this->getAttr();
+        $this->pluck = 'lovedtracks.track';
+        $songs       = collect(collect($this->data)->get('track', []));
+
+        for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
+            $this->page($i);
+            $this->queryLoveTracks($limit);
+            $this->getFullData()
+                 ->each(function ($song) use ($songs) {
+                     $songs->push($song);
+                 });
+        }
+
+        dd($songs->count());
     }
 
     /**
@@ -76,69 +85,33 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param  string  $username
+     * @return Collection
      */
-    public
-    function setUsername(string $username) : void
-    {
-        $this->username = $username;
-    }
-
-
-    /**
-     * @param  string|null  $limit
-     * @return void
-     */
-    public function setLimit(?string $limit) : void
-    {
-        $this->limit(is_null($limit)
-                         ? (int) config('lastfm.limit')
-                         : (int) $limit);
-    }
-
-    /**
-     * @param  Collection  $dates
-     */
-    public function setDates(Collection $dates) : void
-    {
-        $this->setInitDate($dates->get('initDate'));
-        $this->setEndDate($dates->get('endDate'));
-    }
-
-    /**
-     * @param  Carbon  $initDate
-     */
-    public function setInitDate(Carbon $initDate) : void
-    {
-        $this->initDate = $initDate;
-    }
-
-    /**
-     * @param  Carbon  $endDate
-     */
-    public function setEndDate(Carbon $endDate) : void
-    {
-        $this->endDate = $endDate;
-    }
-
-    /**
-     * @param  string|null  $min_plays
-     */
-    public function setMinPlays(?string $min_plays) : void
-    {
-        $this->min_plays = is_null($min_plays)
-            ? (int) config('lastfm.min_plays')
-            : (int) $min_plays;
-    }
-
-    /**
-     * @return array
-     */
-    protected
-    function getUserInfo() : array
+    public function getUserInfo() : Collection
     {
         return parent::userInfo($this->username)
-                     ->get();
+                     ->getFullData();
+    }
+
+
+    /**
+     * @param  int  $limit
+     */
+    public function queryLoveTracks(int $limit = 1)
+    {
+        $this->query = array_merge($this->query, [
+            'method' => 'user.getLovedTracks',
+            'user'   => $this->username,
+            'limit'  => $limit,
+        ]);
+    }
+
+    /**
+     * @param  LastFmUser  $lastFmUser
+     */
+    public function setLastFmUser(LastFmUser $lastFmUser) : void
+    {
+        $this->lastFmUser = $lastFmUser;
     }
 
     /**

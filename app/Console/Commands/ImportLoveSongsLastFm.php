@@ -6,7 +6,7 @@ use App\Http\Classes\LastFm;
 use App\Http\Traits\LastFmCommandTrait;
 use Illuminate\Console\Command;
 
-class ImportLastFm extends Command
+class ImportLoveSongsLastFm extends Command
 {
 
     use LastFmCommandTrait;
@@ -16,14 +16,14 @@ class ImportLastFm extends Command
      *
      * @var string
      */
-    protected $signature = 'lastfm:import {user?} {--initYear=} {--initMonth=} {--endYear=} {--endMonth=} {--limit=} {--minPlays=}';
+    protected $signature = 'lastfm:loveSongs {user?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import songs list from last.fm';
+    protected $description = 'Import Love Songs';
 
     /**
      * @param  LastFm  $lastFm
@@ -31,8 +31,7 @@ class ImportLastFm extends Command
      */
     public function handle(LastFm $lastFm) : void
     {
-        $this->setUpLastFm($lastFm);
-        dd($lastFm->getUserWeeklyTopTracks());
+        $this->setUpLastFmLoveSongs($lastFm);
+        $lastFm->getLovedTracks(config('lastfm.limit_loves'));
     }
-
 }
