@@ -18030,6 +18030,26 @@
         {
                         return \Illuminate\Support\Collection::debug();
         }
+                    /**
+         * 
+         *
+         * @see \App\Providers\LastFmProvider::boot()
+         * @static 
+         */ 
+        public static function toCollection()
+        {
+                        return \Illuminate\Support\Collection::toCollection();
+        }
+                    /**
+         * 
+         *
+         * @see \App\Providers\LastFmProvider::boot()
+         * @static 
+         */ 
+        public static function minPlays()
+        {
+                        return \Illuminate\Support\Collection::minPlays();
+        }
          
     }
      

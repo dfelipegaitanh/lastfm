@@ -19,24 +19,34 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
     public function __construct(Client $client)
     {
-        parent::__construct($client , config('lastfm.api_key'));
-        $this->min_plays = config('lastfm.min_plays');
+        parent::__construct($client, config('lastfm.api_key'));
     }
 
     /**
-     * @return array
+     * @return Collection
      */
-    public function getUserWeeklyTopTracks() : array
+    public function getUserWeeklyTopTracks() : Collection
     {
-        return $this->userWeeklyTopTracks($this->username , Carbon::today()->subWeek())
-                    ->limit($this->limit)
-                    ->get();
+        return $this->userWeeklyTopTracks($this->username, Carbon::today()->subWeek())
+                    ->getData();
+    }
+
+
+    /**
+     * @return Collection
+     */
+    public function getData() : Collection
+    {
+        return collect(parent::get())
+            ->toCollection()
+            ->minPlays($this->min_plays);
     }
 
     /**
      * @return array
      */
-    public function getUserTopAlbums() : array
+    public
+    function getUserTopAlbums() : array
     {
         return parent::userTopAlbums($this->username)
                      ->get();
@@ -46,7 +56,8 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
      * @return array
      * @throws InvalidPeriodException
      */
-    public function getUserTopTracks() : array
+    public
+    function getUserTopTracks() : array
     {
         return parent::userTopTracks($this->username)
                      ->period(Constants::PERIOD_WEEK)
@@ -57,14 +68,22 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     /**
      * @param  string  $username
      */
-    public function setUsername(string $username) : void
+    public
+    function setUsername(string $username) : void
     {
         $this->username = $username;
     }
 
-    public function setLimit(?string $limit)
+
+    /**
+     * @param  string|null  $limit
+     * @return void
+     */
+    public function setLimit(?string $limit) : void
     {
-        $this->limit = is_null($limit) ? (int) config('lastfm.limit') : (int) $limit;
+        $this->limit(is_null($limit)
+                         ? (int) config('lastfm.limit')
+                         : (int) $limit);
     }
 
     /**
@@ -93,9 +112,20 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
+     * @param  string|null  $min_plays
+     */
+    public function setMinPlays(?string $min_plays) : void
+    {
+        $this->min_plays = is_null($min_plays)
+            ? (int) config('lastfm.min_plays')
+            : (int) $min_plays;
+    }
+
+    /**
      * @return array
      */
-    protected function getUserInfo() : array
+    protected
+    function getUserInfo() : array
     {
         return parent::userInfo($this->username)
                      ->get();
@@ -104,7 +134,8 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     /**
      * @return array|bool
      */
-    protected function getNowListening() : bool|array
+    protected
+    function getNowListening() : bool|array
     {
         return parent::nowListening($this->username);
     }
@@ -114,16 +145,17 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
      * @param  int  $months
      * @return void
      */
-    public function getUserTopTracksPeriodTimeByMonths(Carbon $initDate , int $months = 1)
+    public
+    function getUserTopTracksPeriodTimeByMonths(Carbon $initDate, int $months = 1)
     {
         $songs = collect();
         while ($initDate->year <= 2023) {
-            $this->query = array_merge($this->query , [
-                'method' => 'user.getWeeklyTrackChart' ,
-                'user'   => $this->username ,
-                'limit'  => $this->limit ,
-                'from'   => $initDate->format('U') ,
-                'to'     => $initDate->addMonths($months)->subSecond()->format('U') ,
+            $this->query = array_merge($this->query, [
+                'method' => 'user.getWeeklyTrackChart',
+                'user'   => $this->username,
+                'limit'  => $this->limit,
+                'from'   => $initDate->format('U'),
+                'to'     => $initDate->addMonths($months)->subSecond()->format('U'),
             ]);
 
             $this->pluck = 'weeklytrackchart.track';
@@ -131,7 +163,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
             $songs->push(
                 $this->getCollection()
                      ->filter(function ($song) {
-                         return collect($song)->get('playcount' , 0) >= 5 && collect($song)->get('playcount' , 0) <= 10;
+                         return collect($song)->get('playcount', 0) >= 5 && collect($song)->get('playcount', 0) <= 10;
                      }));
 
             $initDate->addSecond();
@@ -144,7 +176,8 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     /**
      * @return Collection
      */
-    public function getCollection() : Collection
+    public
+    function getCollection() : Collection
     {
         return collect($this->get());
     }

@@ -1,9 +1,18 @@
 Comando necesita tener las siguientes opciones
-    user
-    yearInit (default, 2006)
-    monthInit (default 4, April)
-    yearEnd (default, actual year)
-    monthEnd (default, actual month)
+    * user (Working)
+    * yearInit (default, 2006)
+    * monthInit (default 4, April)
+    * yearEnd (default, actual year)
+    * monthEnd (default, actual month)
+    * limit (Working)
+    * minPlays (Working)
+
+Importes
+    * Semanales
+    * Mensuales
+    * Trimensuales
+    * Semestrales
+    * Anuales
 
 Base de datos
 

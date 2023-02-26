@@ -201,6 +201,8 @@ return [
 
         Barryvanveen\Lastfm\LastfmServiceProvider::class,
 
+        App\Providers\LastFmProvider::class
+
     ],
 
     /*
