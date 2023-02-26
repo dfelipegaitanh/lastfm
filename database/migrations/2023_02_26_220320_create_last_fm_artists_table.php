@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('last_fm_artists', function (Blueprint $table) {
             $table->id();
-            $table->string('mbid')->unique();
+            $table->string('mbid');
             $table->string('name')->default('');
             $table->string('url')->default('');
             $table->timestamps();

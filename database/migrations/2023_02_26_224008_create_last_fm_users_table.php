@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('last_fm_users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->string('age');
             $table->string('subscriber');
             $table->string('realname');

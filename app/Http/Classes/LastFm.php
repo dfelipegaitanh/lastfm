@@ -3,6 +3,7 @@
 namespace App\Http\Classes;
 
 use App\Http\Traits\LastFmTrait;
+use App\Models\LastFmArtist;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
@@ -38,9 +39,8 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
     /**
      * @param  int  $limit
-     * @return Collection
      */
-    public function getLovedTracks(int $limit = 100) : Collection
+    public function getLovedTracks(int $limit = 100)
     {
 
         $this->queryLoveTracks($limit);
@@ -58,7 +58,13 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
                  });
         }
 
-        dd($songs->count());
+        $songs->each(function ($song) {
+            $artist             = collect(collect($song)->get("artist", []));
+            $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
+            $lastFmArtist->url  = $this->getKeyValue($artist, 'age', false);
+            $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
+            $lastFmArtist->save();
+        });
     }
 
     /**
@@ -154,15 +160,6 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
 
         dd($songs->flatten(1));
-    }
-
-    /**
-     * @return Collection
-     */
-    public
-    function getCollection() : Collection
-    {
-        return collect($this->get());
     }
 
 }

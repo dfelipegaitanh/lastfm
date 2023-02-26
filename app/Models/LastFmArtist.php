@@ -28,4 +28,10 @@ use Illuminate\Database\Eloquent\Model;
 class LastFmArtist extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'mbid',
+        'name',
+        'url',
+    ];
 }
