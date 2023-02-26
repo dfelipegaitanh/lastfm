@@ -32,7 +32,7 @@ class ImportLastFm extends Command
     public function handle(LastFm $lastFm) : void
     {
         $this->setUpLastFm($lastFm);
-        dd($lastFm->getUserWeeklyTopTracks());
+        dd($lastFm->getLovedTracks());
     }
 
 }

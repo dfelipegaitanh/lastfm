@@ -31,6 +31,16 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
                     ->getData();
     }
 
+    public function getLovedTracks() : Collection
+    {
+
+        $this->query = array_merge($this->query, [
+            'method' => 'user.getLovedTracks',
+            'user'   => $this->username,
+        ]);
+        dd($this->get()); // getLovedTracks
+    }
+
 
     /**
      * @return Collection
