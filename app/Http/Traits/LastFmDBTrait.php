@@ -3,8 +3,10 @@
 namespace App\Http\Traits;
 
 use App\Models\LastFmArtist;
+use App\Models\LastFmLoveSong;
 use App\Models\LastFmSong;
 use App\Models\LastFmUser;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 trait LastFmDBTrait
@@ -69,6 +71,46 @@ trait LastFmDBTrait
         $lastFmSong->lastFmArtist()->associate($lastFmArtist);
         $lastFmSong->save();
         return $lastFmSong;
+    }
+
+    /**
+     * @param  LastFmSong  $lastFmSong
+     * @param  Collection  $song
+     * @return LastFmLoveSong
+     */
+    function getLastFmLoveSong(LastFmSong $lastFmSong, Collection $song) : LastFmLoveSong
+    {
+        $lastFmLoveSong       = LastFmLoveSong::firstOrNew(
+            [
+                'last_fm_song_id' => $lastFmSong->id,
+                'last_fm_user_id' => $this->lastFmUser->id
+            ]
+        );
+        $lastFmLoveSong->uts  = $this->getLoveSongUts($song);
+        $lastFmLoveSong->date = $this->getLoveSongDate($song);
+        $lastFmLoveSong->lastFmUser()->associate($this->lastFmUser);
+        $lastFmLoveSong->lastFmSong()->associate($lastFmSong);
+        $lastFmLoveSong->save();
+        return $lastFmLoveSong;
+    }
+
+    /**
+     * @param  Collection  $song
+     * @return float
+     */
+    public function getLoveSongUts(Collection $song) : float
+    {
+        return (float) collect($song->get('date', []))->get('uts', '');
+    }
+
+    /**
+     * @param  Collection  $song
+     * @return Carbon
+     */
+    public function getLoveSongDate(Collection $song) : Carbon
+    {
+        return (new Carbon(
+            collect($song->get('date', []))->get('#text', '')));
     }
 
 }

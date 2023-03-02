@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\LastFmArtist
@@ -12,20 +16,26 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $mbid
  * @property string $name
  * @property string $url
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist query()
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereMbid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereUrl($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LastFmSong> $lastFmSongs
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|LastFmArtist newModelQuery()
+ * @method static Builder|LastFmArtist newQuery()
+ * @method static Builder|LastFmArtist query()
+ * @method static Builder|LastFmArtist whereCreatedAt($value)
+ * @method static Builder|LastFmArtist whereId($value)
+ * @method static Builder|LastFmArtist whereMbid($value)
+ * @method static Builder|LastFmArtist whereName($value)
+ * @method static Builder|LastFmArtist whereUpdatedAt($value)
+ * @method static Builder|LastFmArtist whereUrl($value)
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
  * @property-read int|null $last_fm_songs_count
- * @mixin \Eloquent
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read Collection<int, \App\Models\LastFmSong> $lastFmSongs
+ * @mixin Eloquent
  */
 class LastFmArtist extends Model
 {

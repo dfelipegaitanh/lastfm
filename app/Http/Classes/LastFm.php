@@ -49,7 +49,8 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         $this->getLovedTracksCollect()
              ->each(function (Collection $song) use ($console) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
-                 $this->getLastFmSong($song, $lastFmArtist);
+                 $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
+                 $this->getLastFmLoveSong($lastFmSong, $song);
 
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
