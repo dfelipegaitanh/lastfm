@@ -66,12 +66,12 @@ trait LastFmTrait
     }
 
     /**
+     * @param  Collection  $data
      * @return Collection
      */
-    public function getAttr() : Collection
+    public function getAttr(Collection $data) : Collection
     {
-        return $this->getFullData()
-            ->get('@attr', collect());
+        return $data->get('@attr', collect());
     }
 
     /**
@@ -129,6 +129,40 @@ trait LastFmTrait
         return ($array === true)
             ? ($user->get($key)[0] ?? '')
             : ($user->get($key) ?? '');
+    }
+
+
+    /**
+     * @return Collection
+     */
+    public function getLovedTracksCollect() : Collection
+    {
+        $loveTracks = $this->userLoveTracks();
+
+        $attr  = $this->getAttr($loveTracks);
+        $songs = collect($loveTracks->get('track', []));
+
+        for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
+            $this->page($i);
+            $this->userLoveTracks()
+                 ->each(function ($song) use ($songs) {
+                     $songs->push($song);
+                 });
+        }
+        return $songs;
+    }
+
+
+    /**
+     * @param  array  $song
+     * @return Collection
+     */
+    function getLastFmArtistFromAPI(array $song = []) : Collection
+    {
+        return collect(
+            collect($song)
+                ->get("artist", [])
+        );
     }
 
 }

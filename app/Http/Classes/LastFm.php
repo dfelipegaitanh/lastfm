@@ -38,33 +38,15 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param  int  $limit
      */
-    public function getLovedTracks(int $limit = 100)
+    public function getLovedTracks()
     {
 
-        $this->queryLoveTracks($limit);
-        $this->pluck = 'lovedtracks';
-        $attr        = $this->getAttr();
-        $this->pluck = 'lovedtracks.track';
-        $songs       = collect(collect($this->data)->get('track', []));
-
-        for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
-            $this->page($i);
-            $this->queryLoveTracks($limit);
-            $this->getFullData()
-                 ->each(function ($song) use ($songs) {
-                     $songs->push($song);
-                 });
-        }
-
-        $songs->each(function ($song) {
-            $artist             = collect(collect($song)->get("artist", []));
-            $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
-            $lastFmArtist->url  = $this->getKeyValue($artist, 'age', false);
-            $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
-            $lastFmArtist->save();
-        });
+        $this->getLovedTracksCollect()
+             ->each(function (array $song) {
+                 $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
+                 dd($lastFmArtist, $song);
+             });
     }
 
     /**
@@ -101,15 +83,17 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
 
     /**
-     * @param  int  $limit
      */
-    public function queryLoveTracks(int $limit = 1)
+    public function userLoveTracks($pluck = 'lovedtracks')
     {
         $this->query = array_merge($this->query, [
             'method' => 'user.getLovedTracks',
             'user'   => $this->username,
-            'limit'  => $limit,
+            'limit'  => config('lastfm.limit_loves'),
         ]);
+        $this->pluck = $pluck;
+
+        return $this->getFullData();
     }
 
     /**
@@ -118,6 +102,19 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function setLastFmUser(LastFmUser $lastFmUser) : void
     {
         $this->lastFmUser = $lastFmUser;
+    }
+
+    /**
+     * @param  Collection  $artist
+     * @return LastFmArtist
+     */
+    function getLastFmArtist(Collection $artist) : LastFmArtist
+    {
+        $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
+        $lastFmArtist->url  = $this->getKeyValue($artist, 'age', false);
+        $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
+        $lastFmArtist->save();
+        return $lastFmArtist;
     }
 
     /**

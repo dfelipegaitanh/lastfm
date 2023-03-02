@@ -48,8 +48,7 @@ trait LastFmCommandTrait
     public function setUpLastFmLoveSongs(LastFm &$lastFm) : void
     {
         $lastFm->setUsername($this->getUsername());
-        $user = $lastFm->getUserInfo();
-        $lastFm->setLastFmUser($this->getLastFmUser($user));
+        $lastFm->setLastFmUser($this->getLastFmUser($lastFm->getUserInfo()));
     }
 
     /**
