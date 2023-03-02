@@ -45,7 +45,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         $this->getLovedTracksCollect()
              ->each(function (array $song) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
-                 dd($lastFmArtist, $song);
+                 dd($song);
              });
     }
 
