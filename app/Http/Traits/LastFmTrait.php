@@ -119,18 +119,17 @@ trait LastFmTrait
     }
 
     /**
-     * @param  Collection  $user
-     * @param $key
+     * @param  Collection  $data
+     * @param  string  $key
      * @param  bool  $array
      * @return \Closure|mixed|string
      */
-    public function getKeyValue(Collection $user, $key, bool $array = true) : mixed
+    public function getKeyValue(Collection $data, string $key, bool $array = true) : mixed
     {
         return ($array === true)
-            ? ($user->get($key)[0] ?? '')
-            : ($user->get($key) ?? '');
+            ? ($data->get($key)[0] ?? '')
+            : ($data->get($key) ?? '');
     }
-
 
     /**
      * @return Collection

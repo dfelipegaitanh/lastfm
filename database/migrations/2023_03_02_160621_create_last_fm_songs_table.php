@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignIdFor(LastFmArtist::class);
             $table->string('mbid');
+            $table->string('name');
             $table->string('url');
             $table->json('image');
             $table->json('streamable');

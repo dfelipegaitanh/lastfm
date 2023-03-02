@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmArtist whereUrl($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LastFmSong> $lastFmSongs
+ * @property-read int|null $last_fm_songs_count
  * @mixin \Eloquent
  */
 class LastFmArtist extends Model
@@ -34,4 +36,10 @@ class LastFmArtist extends Model
         'name',
         'url',
     ];
+
+    public function lastFmSongs()
+    {
+        return $this->hasMany(LastFmSong::class);
+    }
+
 }

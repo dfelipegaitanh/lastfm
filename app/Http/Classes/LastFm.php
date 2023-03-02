@@ -5,6 +5,7 @@ namespace App\Http\Classes;
 use App\Console\Commands\ImportLoveSongsLastFm;
 use App\Http\Traits\LastFmTrait;
 use App\Models\LastFmArtist;
+use App\Models\LastFmSong;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
@@ -49,7 +50,20 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
              ->each(function (array $song) use ($console) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
                  $song         = collect($song);
-                 $song->dd();
+
+                 $lastFmSong = LastFmSong::firstOrNew(
+                     [
+                         'mbid'              => $song->get('mbid', ''),
+                         'name'              => $song->get('name', ''),
+                         'last_fm_artist_id' => $lastFmArtist->id
+                     ]);
+
+                 $lastFmSong->url        = $song->get('url', '');
+                 $lastFmSong->image      = collect($song['image'] ?? [])->toJson();
+                 $lastFmSong->streamable = collect($song['streamable'] ?? [])->toJson();
+                 $lastFmSong->lastFmArtist()->associate($lastFmArtist);
+                 $lastFmSong->save();
+
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
                  $console->newLine();
