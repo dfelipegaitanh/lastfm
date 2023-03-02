@@ -23,6 +23,9 @@ use Illuminate\Support\Carbon;
  * @property mixed $streamable
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read LastFmArtist|null $lastFmArtist
+ * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
+ * @property-read int|null $last_fm_love_song_count
  * @method static Builder|LastFmSong newModelQuery()
  * @method static Builder|LastFmSong newQuery()
  * @method static Builder|LastFmSong query()
@@ -35,12 +38,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder|LastFmSong whereStreamable($value)
  * @method static Builder|LastFmSong whereUpdatedAt($value)
  * @method static Builder|LastFmSong whereUrl($value)
- * @property-read LastFmArtist|null $lastFmArtist
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read int|null $last_fm_love_song_count
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read Collection<int, \App\Models\LastFmLoveSong> $lastFmLoveSong
  * @mixin Eloquent
  */
 class LastFmSong extends Model

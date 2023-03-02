@@ -13,9 +13,6 @@ use Illuminate\Support\Carbon;
 /**
  * App\Models\LastFmUser
  *
- * @method static Builder|LastFmUser newModelQuery()
- * @method static Builder|LastFmUser newQuery()
- * @method static Builder|LastFmUser query()
  * @property int $id
  * @property string $name
  * @property string $age
@@ -35,6 +32,11 @@ use Illuminate\Support\Carbon;
  * @property string $type
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
+ * @property-read int|null $last_fm_love_song_count
+ * @method static Builder|LastFmUser newModelQuery()
+ * @method static Builder|LastFmUser newQuery()
+ * @method static Builder|LastFmUser query()
  * @method static Builder|LastFmUser whereAge($value)
  * @method static Builder|LastFmUser whereAlbumCount($value)
  * @method static Builder|LastFmUser whereArtistCount($value)
@@ -54,11 +56,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder|LastFmUser whereType($value)
  * @method static Builder|LastFmUser whereUpdatedAt($value)
  * @method static Builder|LastFmUser whereUrl($value)
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read int|null $last_fm_love_song_count
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read Collection<int, \App\Models\LastFmLoveSong> $lastFmLoveSong
  * @mixin Eloquent
  */
 class LastFmUser extends Model

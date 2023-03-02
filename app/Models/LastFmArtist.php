@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -18,6 +19,8 @@ use Illuminate\Support\Carbon;
  * @property string $url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read int|null $last_fm_songs_count
  * @method static Builder|LastFmArtist newModelQuery()
  * @method static Builder|LastFmArtist newQuery()
  * @method static Builder|LastFmArtist query()
@@ -27,14 +30,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder|LastFmArtist whereName($value)
  * @method static Builder|LastFmArtist whereUpdatedAt($value)
  * @method static Builder|LastFmArtist whereUrl($value)
- * @property-read Collection<int, LastFmSong> $lastFmSongs
- * @property-read int|null $last_fm_songs_count
- * @property-read Collection<int, LastFmSong> $lastFmSongs
- * @property-read Collection<int, LastFmSong> $lastFmSongs
- * @property-read Collection<int, LastFmSong> $lastFmSongs
- * @property-read Collection<int, LastFmSong> $lastFmSongs
- * @property-read Collection<int, LastFmSong> $lastFmSongs
- * @property-read Collection<int, \App\Models\LastFmSong> $lastFmSongs
  * @mixin Eloquent
  */
 class LastFmArtist extends Model
@@ -47,7 +42,10 @@ class LastFmArtist extends Model
         'url',
     ];
 
-    public function lastFmSongs()
+    /**
+     * @return HasMany
+     */
+    public function lastFmSongs() : HasMany
     {
         return $this->hasMany(LastFmSong::class);
     }
