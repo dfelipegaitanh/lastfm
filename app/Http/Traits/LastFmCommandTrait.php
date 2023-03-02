@@ -11,6 +11,7 @@ trait LastFmCommandTrait
 
     use DateTraits;
     use LastFmTrait;
+    use LastFmDBTrait;
 
     /**
      * @return string

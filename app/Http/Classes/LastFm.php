@@ -3,9 +3,8 @@
 namespace App\Http\Classes;
 
 use App\Console\Commands\ImportLoveSongsLastFm;
+use App\Http\Traits\LastFmDBTrait;
 use App\Http\Traits\LastFmTrait;
-use App\Models\LastFmArtist;
-use App\Models\LastFmSong;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
@@ -17,6 +16,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 {
 
     use LastFmTrait;
+    use LastFmDBTrait;
 
     protected Carbon     $initDate;
     protected Carbon     $endDate;
@@ -47,22 +47,9 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     {
 
         $this->getLovedTracksCollect()
-             ->each(function (array $song) use ($console) {
+             ->each(function (Collection $song) use ($console) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
-                 $song         = collect($song);
-
-                 $lastFmSong = LastFmSong::firstOrNew(
-                     [
-                         'mbid'              => $song->get('mbid', ''),
-                         'name'              => $song->get('name', ''),
-                         'last_fm_artist_id' => $lastFmArtist->id
-                     ]);
-
-                 $lastFmSong->url        = $song->get('url', '');
-                 $lastFmSong->image      = collect($song['image'] ?? [])->toJson();
-                 $lastFmSong->streamable = collect($song['streamable'] ?? [])->toJson();
-                 $lastFmSong->lastFmArtist()->associate($lastFmArtist);
-                 $lastFmSong->save();
+                 $this->getLastFmSong($song, $lastFmArtist);
 
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
@@ -123,19 +110,6 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function setLastFmUser(LastFmUser $lastFmUser) : void
     {
         $this->lastFmUser = $lastFmUser;
-    }
-
-    /**
-     * @param  Collection  $artist
-     * @return LastFmArtist
-     */
-    function getLastFmArtist(Collection $artist) : LastFmArtist
-    {
-        $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
-        $lastFmArtist->url  = $this->getKeyValue($artist, 'age', false);
-        $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
-        $lastFmArtist->save();
-        return $lastFmArtist;
     }
 
     /**

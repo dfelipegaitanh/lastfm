@@ -2,7 +2,6 @@
 
 namespace App\Http\Traits;
 
-use App\Models\LastFmUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -88,34 +87,8 @@ trait LastFmTrait
      */
     public function getFullData() : Collection
     {
-        return collect(parent::get())
+        return collect($this->get())
             ->toCollection();
-    }
-
-    /**
-     * @param  Collection  $user
-     * @return LastFmUser
-     */
-    public function getLastFmUser(Collection $user) : LastFmUser
-    {
-        $lastFmUser               = LastFmUser::firstOrNew(['name' => $this->getUsername()]);
-        $lastFmUser->age          = $this->getKeyValue($user, 'age');
-        $lastFmUser->subscriber   = $this->getKeyValue($user, 'subscriber');
-        $lastFmUser->realname     = $this->getKeyValue($user, 'realname');
-        $lastFmUser->bootstrap    = $this->getKeyValue($user, 'bootstrap');
-        $lastFmUser->playcount    = (int) $this->getKeyValue($user, 'playcount');
-        $lastFmUser->artist_count = (int) $this->getKeyValue($user, 'artist_count');
-        $lastFmUser->playlists    = (int) $this->getKeyValue($user, 'playlists');
-        $lastFmUser->track_count  = (int) $this->getKeyValue($user, 'track_count');
-        $lastFmUser->album_count  = (int) $this->getKeyValue($user, 'album_count');
-        $lastFmUser->image        = $user->get('image')->toJson() ?? '{}';
-        $lastFmUser->registered   = $user->get('registered')->toJson() ?? '';
-        $lastFmUser->country      = $this->getKeyValue($user, 'country');
-        $lastFmUser->gender       = $this->getKeyValue($user, 'gender');
-        $lastFmUser->url          = $this->getKeyValue($user, 'url');
-        $lastFmUser->type         = $this->getKeyValue($user, 'type');
-        $lastFmUser->save();
-        return $lastFmUser;
     }
 
     /**
@@ -139,13 +112,13 @@ trait LastFmTrait
         $loveTracks = $this->userLoveTracks();
 
         $attr  = $this->getAttr($loveTracks);
-        $songs = collect($loveTracks->get('track', []));
+        $songs = collect($loveTracks->get('track', []))->toCollection();
 
         for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
             $this->page($i);
             $this->userLoveTracks('lovedtracks.track')
                  ->each(function (Collection $song) use ($songs) {
-                     $songs->push($song->toArray());
+                     $songs->push($song);
                  });
         }
         return $songs;
@@ -153,15 +126,12 @@ trait LastFmTrait
 
 
     /**
-     * @param  array  $song
+     * @param  Collection  $song
      * @return Collection
      */
-    function getLastFmArtistFromAPI(array $song = []) : Collection
+    function getLastFmArtistFromAPI(Collection $song) : Collection
     {
-        return collect(
-            collect($song)
-                ->get("artist", [])
-        );
+        return collect($song->get("artist", []));
     }
 
 }
