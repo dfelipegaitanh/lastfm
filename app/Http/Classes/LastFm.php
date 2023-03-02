@@ -2,6 +2,7 @@
 
 namespace App\Http\Classes;
 
+use App\Console\Commands\ImportLoveSongsLastFm;
 use App\Http\Traits\LastFmTrait;
 use App\Models\LastFmArtist;
 use App\Models\LastFmUser;
@@ -38,14 +39,20 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
+     * @param  ImportLoveSongsLastFm  $console
+     * @return void
      */
-    public function getLovedTracks()
+    public function getLovedTracks(ImportLoveSongsLastFm $console) : void
     {
 
         $this->getLovedTracksCollect()
-             ->each(function (array $song) {
+             ->each(function (array $song) use ($console) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
-                 dd($song);
+                 $song         = collect($song);
+                 $song->dd();
+                 $console->info("Artist: {$lastFmArtist->name}");
+                 $console->warn("Song: {$song->get('name', '')}");
+                 $console->newLine();
              });
     }
 

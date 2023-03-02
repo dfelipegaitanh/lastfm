@@ -32,6 +32,6 @@ class ImportLoveSongsLastFm extends Command
     public function handle(LastFm $lastFm) : void
     {
         $this->setUpLastFmLoveSongs($lastFm);
-        $lastFm->getLovedTracks();
+        $lastFm->getLovedTracks($this);
     }
 }

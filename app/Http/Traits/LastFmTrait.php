@@ -144,9 +144,9 @@ trait LastFmTrait
 
         for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
             $this->page($i);
-            $this->userLoveTracks()
-                 ->each(function ($song) use ($songs) {
-                     $songs->push($song);
+            $this->userLoveTracks('lovedtracks.track')
+                 ->each(function (Collection $song) use ($songs) {
+                     $songs->push($song->toArray());
                  });
         }
         return $songs;
