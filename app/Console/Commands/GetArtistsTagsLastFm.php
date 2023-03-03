@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Classes\LastFm;
+use App\Models\LastFmArtist;
 use Illuminate\Console\Command;
 
 class GetArtistsTagsLastFm extends Command
@@ -26,6 +27,6 @@ class GetArtistsTagsLastFm extends Command
      */
     public function handle(LastFm $lastFm) : void
     {
-        dd($lastFm);
+        dd(LastFmArtist::all());
     }
 }
