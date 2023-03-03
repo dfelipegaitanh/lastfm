@@ -79,8 +79,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     /**
      * @return array
      */
-    public
-    function getUserTopAlbums() : array
+    public function getUserTopAlbums() : array
     {
         return parent::userTopAlbums($this->username)
                      ->get();
@@ -90,8 +89,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
      * @return array
      * @throws InvalidPeriodException
      */
-    public
-    function getUserTopTracks() : array
+    public function getUserTopTracks() : array
     {
         return parent::userTopTracks($this->username)
                      ->period(Constants::PERIOD_WEEK)
@@ -110,8 +108,10 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
 
     /**
+     * @param  string  $pluck
+     * @return Collection
      */
-    public function userLoveTracks($pluck = 'lovedtracks')
+    public function userLoveTracks(string $pluck = 'lovedtracks') : Collection
     {
         $this->query = array_merge($this->query, [
             'method' => 'user.getLovedTracks',
@@ -124,29 +124,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param  LastFmUser  $lastFmUser
-     */
-    public function setLastFmUser(LastFmUser $lastFmUser) : void
-    {
-        $this->lastFmUser = $lastFmUser;
-    }
-
-    /**
-     * @return array|bool
-     */
-    protected
-    function getNowListening() : bool|array
-    {
-        return parent::nowListening($this->username);
-    }
-
-    /**
      * @param  Carbon  $initDate
      * @param  int  $months
      * @return void
      */
-    public
-    function getUserTopTracksPeriodTimeByMonths(Carbon $initDate, int $months = 1)
+    public function getUserTopTracksPeriodTimeByMonths(Carbon $initDate, int $months = 1) : void
     {
         $songs = collect();
         while ($initDate->year <= 2023) {
@@ -174,12 +156,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param  string  $username
+     * @return array|bool
      */
-    public
-    function setUsername(string $username) : void
+    protected function getNowListening() : bool|array
     {
-        $this->username = $username;
+        return parent::nowListening($this->username);
     }
 
 }

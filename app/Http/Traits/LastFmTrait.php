@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Models\LastFmUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -69,7 +70,7 @@ trait LastFmTrait
     public function getData() : Collection
     {
         return $this->getFullData()
-                    ->minPlays($this->min_plays);
+            ->minPlays($this->min_plays);
     }
 
     /**
@@ -92,6 +93,22 @@ trait LastFmTrait
         return ($array === true)
             ? ($data->get($key)[0] ?? '')
             : ($data->get($key) ?? '');
+    }
+
+    /**
+     * @param  string  $username
+     */
+    public function setUsername(string $username) : void
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @param  LastFmUser  $lastFmUser
+     */
+    public function setLastFmUser(LastFmUser $lastFmUser) : void
+    {
+        $this->lastFmUser = $lastFmUser;
     }
 
     /**
