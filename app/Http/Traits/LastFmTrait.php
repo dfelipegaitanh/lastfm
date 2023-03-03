@@ -9,16 +9,6 @@ trait LastFmTrait
 {
 
     /**
-     * @param  string  $username
-     */
-    public
-    function setUsername(string $username) : void
-    {
-        $this->username = $username;
-    }
-
-
-    /**
      * @param  string|null  $limit
      * @return void
      */

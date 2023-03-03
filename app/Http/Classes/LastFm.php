@@ -29,6 +29,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function __construct(Client $client)
     {
         parent::__construct($client, config('lastfm.api_key'));
+        $this->setUsername(config('lastfm.user'));
     }
 
     /**
@@ -50,8 +51,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         $this->getLovedTracksCollect()
              ->each(function (Collection $song) use ($console) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
-                 // $this->getArtistTags($lastFmArtist);
-                 $lastFmSong = $this->getLastFmSong($song, $lastFmArtist);
+                 $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
                  $this->getLastFmLoveSong($lastFmSong, $song);
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
@@ -59,7 +59,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
              });
     }
 
-    public function getArtistTags(LastFmArtist $lastFmArtist)
+    /**
+     * @param  LastFmArtist  $lastFmArtist
+     * @return Collection
+     */
+    public function getArtistTags(LastFmArtist $lastFmArtist) : Collection
     {
         $this->query = array_merge($this->query, [
             'method' => 'artist.getTags',
@@ -69,7 +73,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         ]);
         $this->pluck = 'tags.tag';
 
-        dd($this->query, $this->get());
+        return $this->getFullData();
     }
 
     /**
@@ -167,6 +171,15 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
 
         dd($songs->flatten(1));
+    }
+
+    /**
+     * @param  string  $username
+     */
+    public
+    function setUsername(string $username) : void
+    {
+        $this->username = $username;
     }
 
 }

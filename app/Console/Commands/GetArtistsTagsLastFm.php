@@ -3,11 +3,15 @@
 namespace App\Console\Commands;
 
 use App\Http\Classes\LastFm;
+use App\Http\Traits\LastFmCommandTrait;
 use App\Models\LastFmArtist;
 use Illuminate\Console\Command;
 
 class GetArtistsTagsLastFm extends Command
 {
+
+    use LastFmCommandTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,6 +31,8 @@ class GetArtistsTagsLastFm extends Command
      */
     public function handle(LastFm $lastFm) : void
     {
-        dd(LastFmArtist::all());
+        LastFmArtist::each(function (LastFmArtist $lastFmArtist) use ($lastFm) {
+            $lastFm->getArtistTags($lastFmArtist)->dd();
+        });
     }
 }
