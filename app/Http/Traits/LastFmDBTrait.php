@@ -5,6 +5,7 @@ namespace App\Http\Traits;
 use App\Models\LastFmArtist;
 use App\Models\LastFmLoveSong;
 use App\Models\LastFmSong;
+use App\Models\LastFmTag;
 use App\Models\LastFmUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -109,8 +110,26 @@ trait LastFmDBTrait
      */
     public function getLoveSongDate(Collection $song) : Carbon
     {
-        return (new Carbon(
-            collect($song->get('date', []))->get('#text', '')));
+        return new Carbon(collect($song->get('date', []))
+                              ->get('#text', ''));
+    }
+
+
+    /**
+     * @param  Collection  $tag
+     * @param  LastFmArtist  $lastFmArtist
+     * @return void
+     */
+    function createArtistTag(Collection $tag, LastFmArtist $lastFmArtist) : void
+    {
+        $lastFmTag = LastFmTag::firstOrCreate(
+            [
+                'name' => $tag->get('name', ''),
+                'url'  => $tag->get('url', ''),
+            ]);
+
+        $lastFmArtist->lastFmTags()
+                     ->attach($lastFmTag->id, ['count' => $tag->get('count', 0)]);
     }
 
 }

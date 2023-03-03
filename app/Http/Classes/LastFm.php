@@ -65,15 +65,21 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
      */
     public function getArtistTags(LastFmArtist $lastFmArtist) : Collection
     {
+
+        $lastFmArtist->lastFmTags()
+                     ->sync([]);
+
         $this->query = array_merge($this->query, [
-            'method' => 'artist.getTags',
+            'method' => 'artist.getTopTags',
             'artist' => $lastFmArtist->name,
-            'mbid'   => $lastFmArtist->mbid,
             'user'   => $this->username,
         ]);
-        $this->pluck = 'tags.tag';
+        $this->pluck = 'toptags.tag';
 
-        return $this->getFullData();
+        return $this->getFullData()
+                    ->filter(function (Collection $tag) {
+                        return $tag->get('count') >= config('lastfm.top_tags_count');
+                    });
     }
 
     /**
@@ -114,9 +120,10 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function userLoveTracks(string $pluck = 'lovedtracks') : Collection
     {
         $this->query = array_merge($this->query, [
-            'method' => 'user.getLovedTracks',
-            'user'   => $this->username,
-            'limit'  => config('lastfm.limit_loves'),
+            'method'      => 'user.getLovedTracks',
+            'autocorrect' => 1,
+            'user'        => $this->username,
+            'limit'       => config('lastfm.limit_loves'),
         ]);
         $this->pluck = $pluck;
 
