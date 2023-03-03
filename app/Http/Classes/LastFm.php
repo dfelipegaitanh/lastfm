@@ -5,6 +5,7 @@ namespace App\Http\Classes;
 use App\Console\Commands\ImportLoveSongsLastFm;
 use App\Http\Traits\LastFmDBTrait;
 use App\Http\Traits\LastFmTrait;
+use App\Models\LastFmArtist;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
@@ -49,13 +50,26 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         $this->getLovedTracksCollect()
              ->each(function (Collection $song) use ($console) {
                  $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
-                 $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
+                 // $this->getArtistTags($lastFmArtist);
+                 $lastFmSong = $this->getLastFmSong($song, $lastFmArtist);
                  $this->getLastFmLoveSong($lastFmSong, $song);
-
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
                  $console->newLine();
              });
+    }
+
+    public function getArtistTags(LastFmArtist $lastFmArtist)
+    {
+        $this->query = array_merge($this->query, [
+            'method' => 'artist.getTags',
+            'artist' => $lastFmArtist->name,
+            'mbid'   => $lastFmArtist->mbid,
+            'user'   => $this->username,
+        ]);
+        $this->pluck = 'tags.tag';
+
+        dd($this->query, $this->get());
     }
 
     /**
