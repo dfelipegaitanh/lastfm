@@ -82,6 +82,7 @@ trait LastFmDBTrait
      */
     function getLastFmLoveSong(LastFmSong $lastFmSong, Collection $song) : LastFmLoveSong
     {
+        /* FIXME: use attach? */
         $lastFmLoveSong       = LastFmLoveSong::firstOrNew(
             [
                 'last_fm_song_id' => $lastFmSong->id,

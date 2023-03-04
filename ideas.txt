@@ -7,26 +7,24 @@ Comando necesita tener las siguientes opciones
     * limit (Working)
     * minPlays (Working)
 
-Importes
+Imports
     * Semanales
     * Mensuales
     * Trimensuales
     * Semestrales
     * Anuales
     * Love Songs (done)
-        * Get Song Album
-    * Tags
-        * Artist (Done)
-        * Albums
-        * Songs
+    * Tags (Done)
 
 Base de datos
     * LastFM
         * Artist (Done)
+            * Events for plays counts history
         * Song (Done)
+            * Events for plays counts history
         * Tags
             * Artist (Done)
-            * Songs
+            *
         * Time Periods
             * Date Init
             * Date Fin
