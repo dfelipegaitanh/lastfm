@@ -13,9 +13,28 @@ Importes
     * Trimensuales
     * Semestrales
     * Anuales
-    * Love Songs
+    * Love Songs (done)
+        * Get Song Album
+    * Tags
+        * Artist (Done)
+        * Albums
+        * Songs
 
 Base de datos
-    * Artist
-    * Song
+    * LastFM
+        * Artist (Done)
+        * Song (Done)
+        * Tags
+            * Artist (Done)
+            * Songs
+        * Time Periods
+            * Date Init
+            * Date Fin
+            * Description (Monthly, Weekly, Yearly)
+            * User
+        * UserTopTrack
+            * User
+            * TimePeriod
+            * Track
+            * Count
 

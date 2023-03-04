@@ -19,7 +19,8 @@ trait LastFmDBTrait
      */
     function getLastFmArtist(Collection $artist) : LastFmArtist
     {
-        $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
+        $lastFmArtist = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
+        dd($lastFmArtist, $lastFmArtist->getKey());
         $lastFmArtist->url  = $this->getKeyValue($artist, 'age', false);
         $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
         $lastFmArtist->save();
