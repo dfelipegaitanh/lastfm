@@ -66,7 +66,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getArtistTags(LastFmArtist $lastFmArtist) : Collection
     {
 
-        $lastFmArtist->lastFmTags()
+        $lastFmArtist->tags()
                      ->sync([]);
 
         $this->query = array_merge($this->query, [
@@ -160,6 +160,28 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
 
         dd($songs->flatten(1));
+    }
+
+    /**
+     * @param  Collection  $data
+     * @return Collection
+     */
+    function getArtistInfo(Collection $data) : Collection
+    {
+        $this->query = array_merge($this->query, [
+            'method'      => 'artist.getInfo',
+            'artist'      => $data->get('name', ''),
+            'mbid'        => $data->get('mbid', ''),
+            'autocorrect' => 1,
+        ]);
+        $this->pluck = 'artist';
+
+        $artist = $this->getFullData();
+        $artist->offsetUnset('similar');
+        $artist->offsetUnset('bio');
+
+        return $artist;
+
     }
 
     /**

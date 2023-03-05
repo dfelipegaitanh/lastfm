@@ -67,11 +67,6 @@ class LastFmUser extends Model
         'subscriber',
         'realname',
         'bootstrap',
-        'playcount',
-        'artist_count',
-        'playlists',
-        'track_count',
-        'album_count',
         'image',
         'registered',
         'country',
@@ -83,8 +78,16 @@ class LastFmUser extends Model
     /**
      * @return HasMany
      */
-    public function lastFmLoveSong() : HasMany
+    public function songs() : HasMany
     {
         return $this->hasMany(LastFmLoveSong::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function stats() : HasMany
+    {
+        return $this->hasMany(LastFmUserStat::class);
     }
 }

@@ -13,8 +13,10 @@ Imports
     * Trimensuales
     * Semestrales
     * Anuales
-    * Love Songs (done)
-    * Tags (Done)
+    * LastFM Love Songs (done)
+        * Get Artist Info From LastFm
+    * LastFMTags for artist (Done)
+    * LastFMTags for songs
 
 Base de datos
     * LastFM

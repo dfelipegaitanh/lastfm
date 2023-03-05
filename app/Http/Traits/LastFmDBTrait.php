@@ -7,6 +7,7 @@ use App\Models\LastFmLoveSong;
 use App\Models\LastFmSong;
 use App\Models\LastFmTag;
 use App\Models\LastFmUser;
+use App\Models\LastFmUserStat;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -20,9 +21,12 @@ trait LastFmDBTrait
     function getLastFmArtist(Collection $artist) : LastFmArtist
     {
         $lastFmArtist = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
-        dd($lastFmArtist, $lastFmArtist->getKey());
-        $lastFmArtist->url  = $this->getKeyValue($artist, 'age', false);
+        if (is_null($lastFmArtist->getKey())) {
+            dd($this->lastFmUser, $this->getArtistInfo($artist));
+        }
+        $lastFmArtist->url  = $this->getKeyValue($artist, 'url', false);
         $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
+        dd($lastFmArtist);
         $lastFmArtist->save();
         return $lastFmArtist;
     }
@@ -33,23 +37,8 @@ trait LastFmDBTrait
      */
     public function getLastFmUser(Collection $user) : LastFmUser
     {
-        $lastFmUser               = LastFmUser::firstOrNew(['name' => $this->getUsername()]);
-        $lastFmUser->age          = $this->getKeyValue($user, 'age');
-        $lastFmUser->subscriber   = $this->getKeyValue($user, 'subscriber');
-        $lastFmUser->realname     = $this->getKeyValue($user, 'realname');
-        $lastFmUser->bootstrap    = $this->getKeyValue($user, 'bootstrap');
-        $lastFmUser->playcount    = (int) $this->getKeyValue($user, 'playcount');
-        $lastFmUser->artist_count = (int) $this->getKeyValue($user, 'artist_count');
-        $lastFmUser->playlists    = (int) $this->getKeyValue($user, 'playlists');
-        $lastFmUser->track_count  = (int) $this->getKeyValue($user, 'track_count');
-        $lastFmUser->album_count  = (int) $this->getKeyValue($user, 'album_count');
-        $lastFmUser->image        = $user->get('image')->toJson() ?? '{}';
-        $lastFmUser->registered   = $user->get('registered')->toJson() ?? '';
-        $lastFmUser->country      = $this->getKeyValue($user, 'country');
-        $lastFmUser->gender       = $this->getKeyValue($user, 'gender');
-        $lastFmUser->url          = $this->getKeyValue($user, 'url');
-        $lastFmUser->type         = $this->getKeyValue($user, 'type');
-        $lastFmUser->save();
+        $lastFmUser = $this->createLastFmUserInDB($user);
+        $this->createLastUserStatInDB($user, $lastFmUser);
         return $lastFmUser;
     }
 
@@ -130,8 +119,57 @@ trait LastFmDBTrait
                 'url'  => $tag->get('url', ''),
             ]);
 
-        $lastFmArtist->lastFmTags()
+        $lastFmArtist->tags()
                      ->attach($lastFmTag->id, ['count' => $tag->get('count', 0)]);
+    }
+
+    /**
+     * @param  Collection  $user
+     * @return LastFmUser
+     */
+    public function createLastFmUserInDB(Collection $user) : LastFmUser
+    {
+        $lastFmUser             = LastFmUser::firstOrNew(['name' => $this->getUsername()]);
+        $lastFmUser->age        = $this->getKeyValue($user, 'age');
+        $lastFmUser->subscriber = $this->getKeyValue($user, 'subscriber');
+        $lastFmUser->realname   = $this->getKeyValue($user, 'realname');
+        $lastFmUser->bootstrap  = $this->getKeyValue($user, 'bootstrap');
+        $lastFmUser->image      = $user->get('image')->toJson() ?? '{}';
+        $lastFmUser->registered = $user->get('registered')->toJson() ?? '';
+        $lastFmUser->country    = $this->getKeyValue($user, 'country');
+        $lastFmUser->gender     = $this->getKeyValue($user, 'gender');
+        $lastFmUser->url        = $this->getKeyValue($user, 'url');
+        $lastFmUser->type       = $this->getKeyValue($user, 'type');
+        $lastFmUser->save();
+        return $lastFmUser;
+    }
+
+    /**
+     * @param  Collection  $user
+     * @return int[]
+     */
+    public function getLastFmUserStatsData(Collection $user) : array
+    {
+        return [
+            'playcount'    => (int) $this->getKeyValue($user, 'playcount'),
+            'artist_count' => (int) $this->getKeyValue($user, 'artist_count'),
+            'playlists'    => (int) $this->getKeyValue($user, 'playlists'),
+            'track_count'  => (int) $this->getKeyValue($user, 'track_count'),
+            'album_count'  => (int) $this->getKeyValue($user, 'album_count'),
+        ];
+    }
+
+    /**
+     * @param  Collection  $user
+     * @param  LastFmUser  $lastFmUser
+     * @return void
+     */
+    public function createLastUserStatInDB(Collection $user, LastFmUser $lastFmUser) : void
+    {
+        LastFmUserStat::firstOrNew($this->getLastFmUserStatsData($user))
+                      ->user()
+                      ->associate($lastFmUser)
+                      ->save();
     }
 
 }

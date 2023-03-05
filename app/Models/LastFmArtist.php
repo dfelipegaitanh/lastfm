@@ -48,6 +48,14 @@ class LastFmArtist extends Model
     /**
      * @return HasMany
      */
+    public function images() : HasMany
+    {
+        return $this->hasMany(LastFmImageArtist::class);
+    }
+
+    /**
+     * @return HasMany
+     */
     public function lastFmSongs() : HasMany
     {
         return $this->hasMany(LastFmSong::class);
@@ -56,7 +64,7 @@ class LastFmArtist extends Model
     /**
      * @return BelongsToMany
      */
-    public function lastFmTags() : BelongsToMany
+    public function tags() : BelongsToMany
     {
         return $this->belongsToMany(LastFmTag::class);
     }
