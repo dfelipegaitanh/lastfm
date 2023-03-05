@@ -13,7 +13,10 @@ return new class extends Migration {
     {
         Schema::create('last_fm_songs', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(LastFmArtist::class);
+            $table->foreignIdFor(LastFmArtist::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
             $table->string('mbid');
             $table->string('name');
             $table->string('url');

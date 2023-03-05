@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property mixed $streamable
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\LastFmArtist|null $lastFmArtist
+ * @property-read \App\Models\LastFmArtist $lastFmArtist
  * @property-read Collection<int, \App\Models\LastFmLoveSong> $lastFmLoveSong
  * @property-read int|null $last_fm_love_song_count
  * @method static Builder|LastFmSong newModelQuery()

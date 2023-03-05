@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string $gender
  * @property string $url
  * @property string $type
+ * @property string|null $dateFirstScrobble
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, \App\Models\LastFmLoveSong> $songs
@@ -38,6 +39,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|LastFmUser whereBootstrap($value)
  * @method static Builder|LastFmUser whereCountry($value)
  * @method static Builder|LastFmUser whereCreatedAt($value)
+ * @method static Builder|LastFmUser whereDateFirstScrobble($value)
  * @method static Builder|LastFmUser whereGender($value)
  * @method static Builder|LastFmUser whereId($value)
  * @method static Builder|LastFmUser whereImage($value)

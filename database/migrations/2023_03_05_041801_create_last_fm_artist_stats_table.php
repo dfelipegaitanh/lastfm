@@ -15,8 +15,14 @@ return new class extends Migration
     {
         Schema::create('last_fm_artist_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(LastFmArtist::class);
-            $table->foreignIdFor(LastFmUser::class);
+            $table->foreignIdFor(LastFmArtist::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');;
+            $table->foreignIdFor(LastFmUser::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');;
             $table->unsignedInteger('userplaycount');
             $table->timestamps();
         });

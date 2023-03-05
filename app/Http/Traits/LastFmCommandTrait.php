@@ -3,6 +3,7 @@
 namespace App\Http\Traits;
 
 use App\Http\Classes\LastFm;
+use App\Models\LastFmPeriodTime;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -46,10 +47,15 @@ trait LastFmCommandTrait
         $lastFm->setMinPlays($this->option('minPlays'));
     }
 
+
     public function setUpLastFmLoveSongs(LastFm &$lastFm) : void
     {
         $lastFm->setUsername($this->getUsername());
         $lastFm->setLastFmUser($this->getLastFmUser($lastFm->getUserInfo()));
+
+        $dateStart = $lastFm->getLastFmUser()->get('dateFirstScrobble');
+        $dateEnd   = Carbon::now()->format($this->dateFormat());
+        $this->createPeriodTime($dateStart, $dateEnd);
     }
 
     /**
@@ -77,6 +83,28 @@ trait LastFmCommandTrait
         }
 
         return $endDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function dateFormat() : string
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+    /**
+     * @param  string  $dateStart
+     * @param  string  $dateEnd
+     * @return void
+     */
+    public function createPeriodTime(string $dateStart, string $dateEnd) : void
+    {
+        session('periodTime', LastFmPeriodTime::firstOrCreate(
+            [
+                'dateStart' => $dateStart,
+                'dateEnd'   => $dateEnd
+            ]));
     }
 
 }

@@ -19,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property string $date
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\LastFmSong|null $lastFmSong
- * @property-read \App\Models\LastFmUser|null $lastFmUser
+ * @property-read \App\Models\LastFmSong $lastFmSong
+ * @property-read \App\Models\LastFmUser $lastFmUser
  * @method static Builder|LastFmLoveSong newModelQuery()
  * @method static Builder|LastFmLoveSong newQuery()
  * @method static Builder|LastFmLoveSong query()

@@ -10,6 +10,8 @@ use App\Models\LastFmUser;
 use App\Models\LastFmUserStat;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 trait LastFmDBTrait
 {
@@ -17,17 +19,20 @@ trait LastFmDBTrait
     /**
      * @param  Collection  $artist
      * @return LastFmArtist
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    function getLastFmArtist(Collection $artist) : LastFmArtist
+    function getLastFmArtistFromDB(Collection $artist) : LastFmArtist
     {
-        $lastFmArtist = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
-        if (is_null($lastFmArtist->getKey())) {
-            dd($this->lastFmUser, $this->getArtistInfo($artist));
-        }
+        $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
         $lastFmArtist->url  = $this->getKeyValue($artist, 'url', false);
         $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
-        dd($lastFmArtist);
         $lastFmArtist->save();
+        if (!$this->lastFmArtistInSession($lastFmArtist)) {
+            session()->push('processed.artists', $lastFmArtist->id);
+            dd($this->lastFmUser, $this->getArtistInfo($artist));
+        }
+        dd(123);
         return $lastFmArtist;
     }
 
@@ -129,17 +134,19 @@ trait LastFmDBTrait
      */
     public function createLastFmUserInDB(Collection $user) : LastFmUser
     {
-        $lastFmUser             = LastFmUser::firstOrNew(['name' => $this->getUsername()]);
-        $lastFmUser->age        = $this->getKeyValue($user, 'age');
-        $lastFmUser->subscriber = $this->getKeyValue($user, 'subscriber');
-        $lastFmUser->realname   = $this->getKeyValue($user, 'realname');
-        $lastFmUser->bootstrap  = $this->getKeyValue($user, 'bootstrap');
-        $lastFmUser->image      = $user->get('image')->toJson() ?? '{}';
-        $lastFmUser->registered = $user->get('registered')->toJson() ?? '';
-        $lastFmUser->country    = $this->getKeyValue($user, 'country');
-        $lastFmUser->gender     = $this->getKeyValue($user, 'gender');
-        $lastFmUser->url        = $this->getKeyValue($user, 'url');
-        $lastFmUser->type       = $this->getKeyValue($user, 'type');
+        $lastFmUser                    = LastFmUser::firstOrNew(['name' => $this->getUsername()]);
+        $lastFmUser->age               = $this->getKeyValue($user, 'age');
+        $lastFmUser->subscriber        = $this->getKeyValue($user, 'subscriber');
+        $lastFmUser->realname          = $this->getKeyValue($user, 'realname');
+        $lastFmUser->bootstrap         = $this->getKeyValue($user, 'bootstrap');
+        $lastFmUser->image             = $user->get('image')->toJson() ?? '{}';
+        $lastFmUser->registered        = $user->get('registered')->toJson() ?? '';
+        $lastFmUser->country           = $this->getKeyValue($user, 'country');
+        $lastFmUser->gender            = $this->getKeyValue($user, 'gender');
+        $lastFmUser->url               = $this->getKeyValue($user, 'url');
+        $lastFmUser->type              = $this->getKeyValue($user, 'type');
+        $lastFmUser->dateFirstScrobble = Carbon::createFromTimestamp($this->getKeyValue($user, 'registered', true, 'unixtime'))
+                                               ->format('Y-m-d H:i:s');
         $lastFmUser->save();
         return $lastFmUser;
     }
@@ -170,6 +177,17 @@ trait LastFmDBTrait
                       ->user()
                       ->associate($lastFmUser)
                       ->save();
+    }
+
+    /**
+     * @param  LastFmArtist  $lastFmArtist
+     * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function lastFmArtistInSession(LastFmArtist $lastFmArtist) : bool
+    {
+        return collect(session()->get('processed.artists'))->contains($lastFmArtist->id) === true;
     }
 
 }

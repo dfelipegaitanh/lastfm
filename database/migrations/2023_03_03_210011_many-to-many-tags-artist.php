@@ -13,8 +13,14 @@ return new class extends Migration {
     public function up() : void
     {
         Schema::create('last_fm_artist_last_fm_tag', function (Blueprint $table) {
-            $table->foreignIdFor(LastFmArtist::class);
-            $table->foreignIdFor(LastFmTag::class);
+            $table->foreignIdFor(LastFmArtist::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');;
+            $table->foreignIdFor(LastFmTag::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');;
             $table->integer('count');
         });
     }

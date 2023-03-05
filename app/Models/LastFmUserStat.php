@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $album_count
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\LastFmUser|null $user
+ * @property-read \App\Models\LastFmUser $user
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmUserStat newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmUserStat newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmUserStat query()

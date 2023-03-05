@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $last_fm_artist_id
  * @property int $last_fm_user_id
+ * @property int $last_fm_period_time_id
  * @property int $userplaycount
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -25,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|LastFmArtistStat whereCreatedAt($value)
  * @method static Builder|LastFmArtistStat whereId($value)
  * @method static Builder|LastFmArtistStat whereLastFmArtistId($value)
+ * @method static Builder|LastFmArtistStat whereLastFmPeriodTimeId($value)
  * @method static Builder|LastFmArtistStat whereLastFmUserId($value)
  * @method static Builder|LastFmArtistStat whereUpdatedAt($value)
  * @method static Builder|LastFmArtistStat whereUserplaycount($value)

@@ -12,6 +12,8 @@ use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
 use GuzzleHttp\Client;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class LastFm extends \Barryvanveen\Lastfm\Lastfm
 {
@@ -44,13 +46,15 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     /**
      * @param  ImportLoveSongsLastFm  $console
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function getLovedTracks(ImportLoveSongsLastFm $console) : void
     {
 
         $this->getLovedTracksCollect()
              ->each(function (Collection $song) use ($console) {
-                 $lastFmArtist = $this->getLastFmArtist($this->getLastFmArtistFromAPI($song));
+                 $lastFmArtist = $this->getLastFmArtistFromDB($this->getLastFmArtistFromAPI($song));
                  $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
                  $this->getLastFmLoveSong($lastFmSong, $song);
                  $console->info("Artist: {$lastFmArtist->name}");
@@ -108,8 +112,8 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
      */
     public function getUserInfo() : Collection
     {
-        return parent::userInfo($this->username)
-                     ->getFullData();
+        return $this->userInfo($this->username)
+                    ->getFullData();
     }
 
 
@@ -182,6 +186,14 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
         return $artist;
 
+    }
+
+    /**
+     * @return LastFmUser
+     */
+    public function getLastFmUser() : LastFmUser
+    {
+        return $this->lastFmUser;
     }
 
     /**

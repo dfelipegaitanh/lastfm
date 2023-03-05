@@ -14,8 +14,14 @@ return new class extends Migration {
     {
         Schema::create('last_fm_love_songs', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(LastFmSong::class);
-            $table->foreignIdFor(LastFmUser::class);
+            $table->foreignIdFor(LastFmSong::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
+            $table->foreignIdFor(LastFmUser::class)
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
             $table->unsignedDouble('uts');
             $table->string('date');
             $table->timestamps();
