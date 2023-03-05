@@ -19,11 +19,6 @@ use Illuminate\Support\Carbon;
  * @property string $subscriber
  * @property string $realname
  * @property string $bootstrap
- * @property int $playcount
- * @property int $artist_count
- * @property int $playlists
- * @property int $track_count
- * @property int $album_count
  * @property mixed $image
  * @property mixed $registered
  * @property string $country
@@ -32,14 +27,14 @@ use Illuminate\Support\Carbon;
  * @property string $type
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, LastFmLoveSong> $lastFmLoveSong
- * @property-read int|null $last_fm_love_song_count
+ * @property-read Collection<int, \App\Models\LastFmLoveSong> $songs
+ * @property-read int|null $songs_count
+ * @property-read Collection<int, \App\Models\LastFmUserStat> $stats
+ * @property-read int|null $stats_count
  * @method static Builder|LastFmUser newModelQuery()
  * @method static Builder|LastFmUser newQuery()
  * @method static Builder|LastFmUser query()
  * @method static Builder|LastFmUser whereAge($value)
- * @method static Builder|LastFmUser whereAlbumCount($value)
- * @method static Builder|LastFmUser whereArtistCount($value)
  * @method static Builder|LastFmUser whereBootstrap($value)
  * @method static Builder|LastFmUser whereCountry($value)
  * @method static Builder|LastFmUser whereCreatedAt($value)
@@ -47,12 +42,9 @@ use Illuminate\Support\Carbon;
  * @method static Builder|LastFmUser whereId($value)
  * @method static Builder|LastFmUser whereImage($value)
  * @method static Builder|LastFmUser whereName($value)
- * @method static Builder|LastFmUser wherePlaycount($value)
- * @method static Builder|LastFmUser wherePlaylists($value)
  * @method static Builder|LastFmUser whereRealname($value)
  * @method static Builder|LastFmUser whereRegistered($value)
  * @method static Builder|LastFmUser whereSubscriber($value)
- * @method static Builder|LastFmUser whereTrackCount($value)
  * @method static Builder|LastFmUser whereType($value)
  * @method static Builder|LastFmUser whereUpdatedAt($value)
  * @method static Builder|LastFmUser whereUrl($value)

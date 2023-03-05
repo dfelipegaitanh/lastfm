@@ -20,10 +20,12 @@ use Illuminate\Support\Carbon;
  * @property string $url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, LastFmSong> $lastFmSongs
+ * @property-read Collection<int, \App\Models\LastFmImageArtist> $images
+ * @property-read int|null $images_count
+ * @property-read Collection<int, \App\Models\LastFmSong> $lastFmSongs
  * @property-read int|null $last_fm_songs_count
- * @property-read Collection<int, LastFmTag> $lastFmTags
- * @property-read int|null $last_fm_tags_count
+ * @property-read Collection<int, \App\Models\LastFmTag> $tags
+ * @property-read int|null $tags_count
  * @method static Builder|LastFmArtist newModelQuery()
  * @method static Builder|LastFmArtist newQuery()
  * @method static Builder|LastFmArtist query()
