@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $last_fm_artist_id
- * @property string $mbid
+ * @property string|null $mbid
  * @property string $name
  * @property string $url
  * @property mixed $image

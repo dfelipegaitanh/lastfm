@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $last_fm_artist_id
  * @property string $image
  * @property string $size
+ * @property int|null $actual
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $actual
  * @property-read \App\Models\LastFmArtist|null $artist
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist newQuery()
