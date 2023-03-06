@@ -34,6 +34,8 @@ class GetArtistsTagsLastFm extends Command
      */
     public function handle(LastFm $lastFm) : void
     {
+        return;
+        // Deprecated
         LastFmArtist::all()
                     ->each(function (LastFmArtist $lastFmArtist) use ($lastFm) {
                         $this->info("Artist: ".$lastFmArtist->name);

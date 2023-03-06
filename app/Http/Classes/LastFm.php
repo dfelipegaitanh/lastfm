@@ -57,6 +57,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
                  $lastFmArtist = $this->getLastFmArtistFromDB($this->getLastFmArtistFromAPI($song));
                  $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
                  $this->getLastFmLoveSong($lastFmSong, $song);
+
+                 $trackInfo = $this->trackGetInfo($song);
+                 dd($trackInfo);
+
+
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
                  $console->newLine();
@@ -194,6 +199,30 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getLastFmUser() : LastFmUser
     {
         return $this->lastFmUser;
+    }
+
+    /**
+     * @param  Collection  $data
+     * @return Collection
+     */
+    public function trackGetInfo(Collection $data) : Collection
+    {
+        $this->query = array_merge($this->query, [
+            'method' => 'track.getInfo',
+            'track'  => $data->get('name', ''),
+            'artist' => collect($data->get('artist', []))->get('name', ''),
+            'mbid'   => '',
+        ]);
+        $this->pluck = 'track';
+
+        try {
+            $trackInfo = $this->getFullData();
+            $trackInfo->offsetUnset('wiki');
+
+            return $trackInfo;
+        } catch (\Exception $e) {
+            return collect();
+        }
     }
 
     /**

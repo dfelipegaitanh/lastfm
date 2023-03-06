@@ -22,8 +22,10 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Collection<int, \App\Models\LastFmImageArtist> $images
  * @property-read int|null $images_count
- * @property-read Collection<int, \App\Models\LastFmSong> $lastFmSongs
- * @property-read int|null $last_fm_songs_count
+ * @property-read Collection<int, \App\Models\LastFmSong> $songs
+ * @property-read int|null $songs_count
+ * @property-read Collection<int, \App\Models\LastFmArtistStat> $stats
+ * @property-read int|null $stats_count
  * @property-read Collection<int, \App\Models\LastFmTag> $tags
  * @property-read int|null $tags_count
  * @method static Builder|LastFmArtist newModelQuery()
@@ -58,7 +60,15 @@ class LastFmArtist extends Model
     /**
      * @return HasMany
      */
-    public function lastFmSongs() : HasMany
+    public function stats() : HasMany
+    {
+        return $this->hasMany(LastFmArtistStat::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function songs() : HasMany
     {
         return $this->hasMany(LastFmSong::class);
     }

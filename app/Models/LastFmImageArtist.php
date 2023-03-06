@@ -15,10 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $size
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $actual
  * @property-read \App\Models\LastFmArtist|null $artist
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist whereActual($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmImageArtist whereImage($value)
@@ -30,6 +32,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LastFmImageArtist extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'last_fm_artist_id',
+        'image',
+        'size',
+    ];
 
     /**
      * @return BelongsTo

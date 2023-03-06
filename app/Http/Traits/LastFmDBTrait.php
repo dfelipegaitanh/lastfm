@@ -3,6 +3,8 @@
 namespace App\Http\Traits;
 
 use App\Models\LastFmArtist;
+use App\Models\LastFmArtistStat;
+use App\Models\LastFmImageArtist;
 use App\Models\LastFmLoveSong;
 use App\Models\LastFmSong;
 use App\Models\LastFmTag;
@@ -28,11 +30,7 @@ trait LastFmDBTrait
         $lastFmArtist->url  = $this->getKeyValue($artist, 'url', false);
         $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
         $lastFmArtist->save();
-        if (!$this->lastFmArtistInSession($lastFmArtist)) {
-            session()->push('processed.artists', $lastFmArtist->id);
-            dd($this->lastFmUser, $this->getArtistInfo($artist));
-        }
-        dd(123);
+        $this->updateLastFmArtistInfo($lastFmArtist, $artist);
         return $lastFmArtist;
     }
 
@@ -56,7 +54,6 @@ trait LastFmDBTrait
     {
         $lastFmSong = LastFmSong::firstOrNew(
             [
-                'mbid'              => $song->get('mbid', ''),
                 'name'              => $song->get('name', ''),
                 'last_fm_artist_id' => $lastFmArtist->id
             ]);
@@ -112,12 +109,16 @@ trait LastFmDBTrait
 
 
     /**
-     * @param  Collection  $tag
+     * @param  Collection|array  $tag
      * @param  LastFmArtist  $lastFmArtist
      * @return void
      */
-    function createArtistTag(Collection $tag, LastFmArtist $lastFmArtist) : void
+    function createArtistTag(Collection|array $tag, LastFmArtist $lastFmArtist) : void
     {
+        if (is_array($tag)) {
+            $tag = collect($tag);
+        }
+
         $lastFmTag = LastFmTag::firstOrCreate(
             [
                 'name' => $tag->get('name', ''),
@@ -125,7 +126,10 @@ trait LastFmDBTrait
             ]);
 
         $lastFmArtist->tags()
-                     ->attach($lastFmTag->id, ['count' => $tag->get('count', 0)]);
+                     ->attach(
+                         $lastFmTag->id,
+                         ['count' => $tag->get('count', 0)],
+                     );
     }
 
     /**
@@ -187,7 +191,99 @@ trait LastFmDBTrait
      */
     public function lastFmArtistInSession(LastFmArtist $lastFmArtist) : bool
     {
-        return collect(session()->get('processed.artists'))->contains($lastFmArtist->id) === true;
+        return collect(session()->get('artists.processed'))->contains($lastFmArtist->id) === true;
+    }
+
+    /**
+     * @param  Collection  $artistInfo
+     * @return int
+     */
+    public function getArtistStatsUserPlayCount(Collection $artistInfo) : int
+    {
+        return $artistInfo->get('stats', collect())
+                          ->get('userplaycount', 0);
+    }
+
+    /**
+     * @param  Collection  $artistInfo
+     * @param  LastFmArtist  $lastFmArtist
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function saveArtistStats(Collection $artistInfo, LastFmArtist $lastFmArtist) : void
+    {
+
+        $artistStats = LastFmArtistStat::firstOrNew(
+            [
+                'userplaycount'     => $this->getArtistStatsUserPlayCount($artistInfo),
+                'last_fm_artist_id' => $lastFmArtist->id,
+                'last_fm_user_id'   => $this->lastFmUser->id,
+            ]
+        );
+        $artistStats->periodTime()->associate(session()->get('periodTime'));
+        $artistStats->save();
+    }
+
+    /**
+     * @param  Collection  $artistInfo
+     * @return void
+     */
+    public function saveArtistImages(Collection $artistInfo) : void
+    {
+        LastFmImageArtist::where('last_fm_artist_id', $this->lastFmUser->id)
+                         ->update(['actual' => false]);
+        $artistInfo->get('image', collect())
+                   ->each(function ($image) {
+                       $image = LastFmImageArtist::firstOrCreate(
+                           [
+                               'last_fm_artist_id' => $this->lastFmUser->id,
+                               'image'             => $image['#text'],
+                               'size'              => $image['size'],
+                           ]);
+
+                       $image->actual = true;
+                       $image->save();
+                   });
+    }
+
+    /**
+     * @param  Collection  $artistInfo
+     * @return Collection
+     */
+    public function getArtistsInfoTags(Collection $artistInfo) : Collection
+    {
+        return collect($artistInfo->get('tags', collect())->get('tag', []));
+    }
+
+    /**
+     * @param  Collection  $artistInfo
+     * @param  \Illuminate\Database\Eloquent\Model|LastFmArtist  $lastFmArtist
+     * @return void
+     */
+    public function saveArtistsTags(Collection $artistInfo, \Illuminate\Database\Eloquent\Model|LastFmArtist $lastFmArtist) : void
+    {
+        $this->getArtistsInfoTags($artistInfo)
+             ->each(function ($tag) use ($lastFmArtist) {
+                 $this->createArtistTag($tag, $lastFmArtist);
+             });
+    }
+
+    /**
+     * @param  LastFmArtist  $lastFmArtist
+     * @param  Collection  $artist
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function updateLastFmArtistInfo(LastFmArtist $lastFmArtist, Collection $artist) : void
+    {
+        if (!$this->lastFmArtistInSession($lastFmArtist)) {
+            session()->push('artists.processed', $lastFmArtist->id);
+            $artistInfo = $this->getArtistInfo($artist);
+            $this->saveArtistImages($artistInfo);
+            $this->saveArtistStats($artistInfo, $lastFmArtist);
+            $this->saveArtistsTags($artistInfo, $lastFmArtist);
+        }
     }
 
 }

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string|null $dateStart
  * @property string|null $dateEnd
+ * @property string $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime newModelQuery()
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereDateEnd($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereDateStart($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereUpdatedAt($value)
  * @mixin \Eloquent
  */

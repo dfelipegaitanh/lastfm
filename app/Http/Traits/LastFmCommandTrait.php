@@ -53,7 +53,7 @@ trait LastFmCommandTrait
         $lastFm->setUsername($this->getUsername());
         $lastFm->setLastFmUser($this->getLastFmUser($lastFm->getUserInfo()));
 
-        $dateStart = $lastFm->getLastFmUser()->get('dateFirstScrobble');
+        $dateStart = $lastFm->getLastFmUser()->dateFirstScrobble;
         $dateEnd   = Carbon::now()->format($this->dateFormat());
         $this->createPeriodTime($dateStart, $dateEnd);
     }
@@ -100,11 +100,7 @@ trait LastFmCommandTrait
      */
     public function createPeriodTime(string $dateStart, string $dateEnd) : void
     {
-        session('periodTime', LastFmPeriodTime::firstOrCreate(
-            [
-                'dateStart' => $dateStart,
-                'dateEnd'   => $dateEnd
-            ]));
+        session(['periodTime' => LastFmPeriodTime::firstOrCreate(['dateStart' => $dateStart, 'dateEnd' => $dateEnd])]);
     }
 
 }

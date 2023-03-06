@@ -118,17 +118,9 @@ trait LastFmTrait
     public function getLovedTracksCollect() : Collection
     {
         $loveTracks = $this->userLoveTracks();
-
-        $attr  = $this->getAttr($loveTracks);
-        $songs = collect($loveTracks->get('track', []))->toCollection();
-
-        for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
-            $this->page($i);
-            $this->userLoveTracks('lovedtracks.track')
-                 ->each(function (Collection $song) use ($songs) {
-                     $songs->push($song);
-                 });
-        }
+        $attr       = $this->getAttr($loveTracks);
+        $songs      = collect($loveTracks->get('track', []))->toCollection();
+        $this->attachAllLovedTracks($attr, $songs);
         return $songs;
     }
 
@@ -140,6 +132,22 @@ trait LastFmTrait
     function getLastFmArtistFromAPI(Collection $song) : Collection
     {
         return collect($song->get("artist", []));
+    }
+
+    /**
+     * @param  Collection  $attr
+     * @param $songs
+     * @return void
+     */
+    protected function attachAllLovedTracks(Collection $attr, $songs) : void
+    {
+        for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
+            $this->page($i);
+            $this->userLoveTracks('lovedtracks.track')
+                 ->each(function (Collection $song) use ($songs) {
+                     $songs->push($song);
+                 });
+        }
     }
 
 }

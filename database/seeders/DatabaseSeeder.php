@@ -8,6 +8,7 @@ use App\Models\LastFmArtistLastFmTag;
 use App\Models\LastFmArtistStat;
 use App\Models\LastFmImageArtist;
 use App\Models\LastFmLoveSong;
+use App\Models\LastFmPeriodTime;
 use App\Models\LastFmSong;
 use App\Models\LastFmTag;
 use App\Models\LastFmUser;
@@ -21,14 +22,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run() : void
     {
-        LastFmArtistLastFmTag::truncate();
-        LastFmArtistStat::truncate();
-        LastFmImageArtist::truncate();
-        LastFmUserStat::truncate();
-        LastFmTag::truncate();
-        LastFmArtist::truncate();
-        LastFmLoveSong::truncate();
-        LastFmSong::truncate();
-        LastFmUser::truncate();
+
+        \Schema::withoutForeignKeyConstraints(function () {
+            LastFmArtist::truncate();
+            LastFmPeriodTime::truncate();
+            LastFmArtistLastFmTag::truncate();
+            LastFmArtistStat::truncate();
+            LastFmImageArtist::truncate();
+            LastFmUserStat::truncate();
+            LastFmTag::truncate();
+            LastFmArtist::truncate();
+            LastFmLoveSong::truncate();
+            LastFmSong::truncate();
+            LastFmUser::truncate();
+        });
     }
 }

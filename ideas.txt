@@ -37,4 +37,5 @@ Base de datos
             * TimePeriod
             * Track
             * Count
-
+        * Stats
+            * Delete 'onCascade'
