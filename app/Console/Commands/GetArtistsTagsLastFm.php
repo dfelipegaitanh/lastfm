@@ -41,7 +41,7 @@ class GetArtistsTagsLastFm extends Command
                         $this->info("Artist: ".$lastFmArtist->name);
                         $lastFm->getArtistTags($lastFmArtist)
                                ->each(function (Collection $tag) use ($lastFmArtist) {
-                                   $this->createArtistTag($tag, $lastFmArtist);
+                                   $this->createTagAssociation($tag, $lastFmArtist);
                                    $this->warn("Tag: ".$tag->get('name').". Count: ".$tag->get('count'));
                                });
                         $this->newLine();

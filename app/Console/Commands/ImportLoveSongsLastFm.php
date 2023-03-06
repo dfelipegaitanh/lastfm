@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Http\Classes\LastFm;
 use App\Http\Traits\LastFmCommandTrait;
 use Illuminate\Console\Command;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ImportLoveSongsLastFm extends Command
 {
@@ -28,6 +30,8 @@ class ImportLoveSongsLastFm extends Command
     /**
      * @param  LastFm  $lastFm
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function handle(LastFm $lastFm) : void
     {

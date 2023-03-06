@@ -7,6 +7,7 @@ use App\Models\LastFmArtistStat;
 use App\Models\LastFmImageArtist;
 use App\Models\LastFmLoveSong;
 use App\Models\LastFmSong;
+use App\Models\LastFmSongStat;
 use App\Models\LastFmTag;
 use App\Models\LastFmUser;
 use App\Models\LastFmUserStat;
@@ -61,7 +62,7 @@ trait LastFmDBTrait
         $lastFmSong->url        = $song->get('url', '');
         $lastFmSong->image      = collect($song['image'] ?? [])->toJson();
         $lastFmSong->streamable = collect($song['streamable'] ?? [])->toJson();
-        $lastFmSong->lastFmArtist()->associate($lastFmArtist);
+        $lastFmSong->artist()->associate($lastFmArtist);
         $lastFmSong->save();
         return $lastFmSong;
     }
@@ -69,9 +70,9 @@ trait LastFmDBTrait
     /**
      * @param  LastFmSong  $lastFmSong
      * @param  Collection  $song
-     * @return LastFmLoveSong
+     * @return void
      */
-    function getLastFmLoveSong(LastFmSong $lastFmSong, Collection $song) : LastFmLoveSong
+    function getLastFmLoveSong(LastFmSong $lastFmSong, Collection $song) : void
     {
         /* FIXME: use attach? */
         $lastFmLoveSong       = LastFmLoveSong::firstOrNew(
@@ -85,7 +86,6 @@ trait LastFmDBTrait
         $lastFmLoveSong->lastFmUser()->associate($this->lastFmUser);
         $lastFmLoveSong->lastFmSong()->associate($lastFmSong);
         $lastFmLoveSong->save();
-        return $lastFmLoveSong;
     }
 
     /**
@@ -110,21 +110,21 @@ trait LastFmDBTrait
 
     /**
      * @param  Collection|array  $tag
-     * @param  LastFmArtist  $lastFmArtist
+     * @param  LastFmArtist|LastFmSong  $data
      * @return void
      */
-    function createArtistTag(Collection|array $tag, LastFmArtist $lastFmArtist) : void
+    function createTagAssociation(Collection|array $tag, LastFmArtist|LastFmSong $data) : void
     {
         if (is_array($tag)) {
             $tag = collect($tag);
         }
 
-        $lastFmArtist->tags()
-                     ->attach(LastFmTag::firstOrCreate(
-                         [
-                             'name' => $tag->get('name', ''),
-                             'url'  => $tag->get('url', ''),
-                         ])->id);
+        $data->tags()
+             ->attach(LastFmTag::firstOrCreate(
+                 [
+                     'name' => $tag->get('name', ''),
+                     'url'  => $tag->get('url', ''),
+                 ])->id);
     }
 
     /**
@@ -242,12 +242,13 @@ trait LastFmDBTrait
     }
 
     /**
-     * @param  Collection  $artistInfo
+     * @param  Collection  $data
+     * @param  string  $key
      * @return Collection
      */
-    public function getArtistsInfoTags(Collection $artistInfo) : Collection
+    public function getInfoTags(Collection $data, $key = "tags") : Collection
     {
-        return collect($artistInfo->get('tags', collect())->get('tag', []));
+        return collect($data->get($key, collect())->get('tag', []));
     }
 
     /**
@@ -255,12 +256,12 @@ trait LastFmDBTrait
      * @param  LastFmArtist  $lastFmArtist
      * @return void
      */
-    public function saveArtistsTags(Collection $artistInfo, LastFmArtist $lastFmArtist) : void
+    public function saveArtistsTag(Collection $artistInfo, LastFmArtist $lastFmArtist) : void
     {
         $lastFmArtist->tags()->sync([]);
-        $this->getArtistsInfoTags($artistInfo)
+        $this->getInfoTags($artistInfo)
              ->each(function ($tag) use ($lastFmArtist) {
-                 $this->createArtistTag($tag, $lastFmArtist);
+                 $this->createTagAssociation($tag, $lastFmArtist);
              });
     }
 
@@ -278,8 +279,58 @@ trait LastFmDBTrait
             $artistInfo = $this->getArtistInfo($artist);
             $this->saveArtistImages($artistInfo);
             $this->saveArtistStats($artistInfo, $lastFmArtist);
-            $this->saveArtistsTags($artistInfo, $lastFmArtist);
+            $this->saveArtistsTag($artistInfo, $lastFmArtist);
         }
+    }
+
+    /**
+     * @param  Collection  $song
+     * @param  LastFmSong  $lastFmSong
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    function updateLastFmSongInfo(Collection $song, LastFmSong $lastFmSong) : void
+    {
+        $trackInfo = $this->trackGetInfo($song);
+        if ($trackInfo->isNotEmpty()) {
+            $this->saveSongStats($trackInfo, $lastFmSong);
+            $this->saveSongTags($lastFmSong, $trackInfo);
+        }
+    }
+
+    /**
+     * @param  Collection  $trackInfo
+     * @param  LastFmSong  $lastFmSong
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function saveSongStats(Collection $trackInfo, LastFmSong $lastFmSong) : void
+    {
+        $songStats = LastFmSongStat::firstOrNew(
+            [
+                'userplaycount'   => $this->getKeyValue($trackInfo, 'userplaycount'),
+                'last_fm_song_id' => $lastFmSong->id,
+                'last_fm_user_id' => $this->lastFmUser->id,
+            ]
+        );
+        $songStats->periodTime()->associate(session()->get('periodTime'));
+        $songStats->save();
+    }
+
+    /**
+     * @param  LastFmSong  $lastFmSong
+     * @param  Collection  $trackInfo
+     * @return void
+     */
+    public function saveSongTags(LastFmSong $lastFmSong, Collection $trackInfo) : void
+    {
+        $lastFmSong->tags()->sync([]);
+        $this->getInfoTags($trackInfo, 'toptags')
+             ->each(function ($tag) use ($lastFmSong) {
+                 $this->createTagAssociation($tag, $lastFmSong);
+             });
     }
 
 }

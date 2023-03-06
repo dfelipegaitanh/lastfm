@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -23,9 +24,11 @@ use Illuminate\Support\Carbon;
  * @property mixed $streamable
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\LastFmArtist $lastFmArtist
+ * @property-read \App\Models\LastFmArtist|null $artist
  * @property-read Collection<int, \App\Models\LastFmLoveSong> $lastFmLoveSong
  * @property-read int|null $last_fm_love_song_count
+ * @property-read Collection<int, \App\Models\LastFmTag> $tags
+ * @property-read int|null $tags_count
  * @method static Builder|LastFmSong newModelQuery()
  * @method static Builder|LastFmSong newQuery()
  * @method static Builder|LastFmSong query()
@@ -52,9 +55,9 @@ class LastFmSong extends Model
         'streamable',
     ];
 
-    public function lastFmArtist() : BelongsTo
+    public function artist() : BelongsTo
     {
-        return $this->belongsTo(LastFmArtist::class);
+        return $this->belongsTo(LastFmArtist::class, 'last_fm_artist_id');
     }
 
     /**
@@ -63,6 +66,14 @@ class LastFmSong extends Model
     public function lastFmLoveSong() : HasMany
     {
         return $this->hasMany(LastFmLoveSong::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function tags() : BelongsToMany
+    {
+        return $this->belongsToMany(LastFmTag::class);
     }
 
 }

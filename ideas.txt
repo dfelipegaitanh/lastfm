@@ -18,6 +18,8 @@ Imports
     * LastFMTags for artist (Done)
     * LastFMTags for songs
 
+* COUNT NUMBER OF API CALLS
+
 Base de datos
     * LastFM
         * Artist (Done)

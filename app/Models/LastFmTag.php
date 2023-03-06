@@ -17,8 +17,10 @@ use Illuminate\Support\Carbon;
  * @property string $url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LastFmArtist> $lastFmArtists
- * @property-read int|null $last_fm_artists_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LastFmArtist> $artists
+ * @property-read int|null $artists_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LastFmSong> $songs
+ * @property-read int|null $songs_count
  * @method static Builder|LastFmTag newModelQuery()
  * @method static Builder|LastFmTag newQuery()
  * @method static Builder|LastFmTag query()
@@ -41,8 +43,17 @@ class LastFmTag extends Model
     /**
      * @return BelongsToMany
      */
-    public function lastFmArtists() : BelongsToMany
+    public function artists() : BelongsToMany
     {
         return $this->belongsToMany(LastFmArtist::class);
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function songs() : BelongsToMany
+    {
+        return $this->belongsToMany(LastFmSong::class);
+    }
+
 }

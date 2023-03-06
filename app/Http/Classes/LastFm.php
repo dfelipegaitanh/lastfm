@@ -9,6 +9,7 @@ use App\Models\LastFmArtist;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -57,11 +58,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
                  $lastFmArtist = $this->getLastFmArtistFromDB($this->getLastFmArtistFromAPI($song));
                  $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
                  $this->getLastFmLoveSong($lastFmSong, $song);
-
-                 $trackInfo = $this->trackGetInfo($song);
-                 dd($trackInfo);
-
-
+                 $this->updateLastFmSongInfo($song, $lastFmSong);
                  $console->info("Artist: {$lastFmArtist->name}");
                  $console->warn("Song: {$song->get('name', '')}");
                  $console->newLine();
@@ -180,16 +177,20 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         $this->query = array_merge($this->query, [
             'method'      => 'artist.getInfo',
             'artist'      => $data->get('name', ''),
-            'mbid'        => $data->get('mbid', ''),
+            'mbid'        => '',
             'autocorrect' => 1,
         ]);
         $this->pluck = 'artist';
+        try {
+            $artist = $this->getFullData();
+            $artist->offsetUnset('similar');
+            $artist->offsetUnset('bio');
 
-        $artist = $this->getFullData();
-        $artist->offsetUnset('similar');
-        $artist->offsetUnset('bio');
-
-        return $artist;
+            return $artist;
+        } catch (Exception) {
+            $this->pluck = null;
+            dd($this->query, $this->getFullData());
+        }
 
     }
 
@@ -220,7 +221,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
             $trackInfo->offsetUnset('wiki');
 
             return $trackInfo;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return collect();
         }
     }
