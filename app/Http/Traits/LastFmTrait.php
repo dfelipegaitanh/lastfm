@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Models\LastFmPeriodTime;
 use App\Models\LastFmUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -148,6 +149,36 @@ trait LastFmTrait
                      $songs->push($song);
                  });
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function dateFormat() : string
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+    /**
+     * @param  LastFmPeriodTime|null  $lastFmPeriodTime
+     * @return array
+     */
+    public function getFromToPeriodTime(?LastFmPeriodTime $lastFmPeriodTime) : array
+    {
+        if (is_null($lastFmPeriodTime)) {
+            $from = Carbon::today()
+                          ->addHours(12)
+                          ->subWeek();
+            $to   = $from->addWeek()
+                         ->format('U');
+            $from = $from->subWeek()
+                         ->format('U');
+        }
+        else {
+            $from = (new Carbon($lastFmPeriodTime->dateStart))->format('U');
+            $to   = (new Carbon($lastFmPeriodTime->dateEnd))->format('U');
+        }
+        return [$from, $to];
     }
 
 }

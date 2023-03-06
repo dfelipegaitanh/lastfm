@@ -47,6 +47,15 @@ trait LastFmCommandTrait
         $lastFm->setMinPlays($this->option('minPlays'));
     }
 
+    /**
+     * @param  LastFm  $lastFm
+     * @return void
+     */
+    public function setUpChartWeeklyLastFm(LastFm &$lastFm) : void
+    {
+        $lastFm->setUsername($this->getUsername());
+    }
+
 
     public function setUpLastFmLoveSongs(LastFm &$lastFm) : void
     {
@@ -83,14 +92,6 @@ trait LastFmCommandTrait
         }
 
         return $endDate;
-    }
-
-    /**
-     * @return string
-     */
-    public function dateFormat() : string
-    {
-        return 'Y-m-d H:i:s';
     }
 
     /**

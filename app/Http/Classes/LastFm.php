@@ -6,6 +6,7 @@ use App\Console\Commands\ImportLoveSongsLastFm;
 use App\Http\Traits\LastFmDBTrait;
 use App\Http\Traits\LastFmTrait;
 use App\Models\LastFmArtist;
+use App\Models\LastFmPeriodTime;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
@@ -36,12 +37,43 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
+     * @param  LastFmPeriodTime|null  $lastFmPeriodTime
      * @return Collection
      */
-    public function getUserWeeklyTopTracks() : Collection
+    public function getWeeklyTrackChart(?LastFmPeriodTime $lastFmPeriodTime) : Collection
     {
-        return $this->userWeeklyTopTracks($this->username, Carbon::today()->subWeek())
-                    ->getData();
+
+        [$from, $to] = $this->getFromToPeriodTime($lastFmPeriodTime);
+        $this->query = array_merge($this->query, [
+            'method' => 'user.getweeklytrackchart',
+            'user'   => $this->username,
+            'from'   => 1179057600, $from, // 1677517200,
+            'to'     => 1179662400, $to, // 1678122000,
+        ]);
+        $this->pluck = 'weeklytrackchart';
+        $chart       = $this->getFullData();
+        return collect(
+            [
+                'tracks' => $chart->get('track', collect())
+                                  ->filter(function ($track) {
+                                      return ($track['playcount'] ?? 0) >= config('lastfm.min_plays_week');
+                                  })
+            ]);
+
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getUserWeeklyChartList() : Collection
+    {
+        $this->query = array_merge($this->query, [
+            'method' => 'user.getWeeklyChartList',
+            'user'   => $this->username,
+        ]);
+
+        $this->pluck = 'weeklychartlist.chart';
+        return $this->getFullData();
     }
 
     /**
