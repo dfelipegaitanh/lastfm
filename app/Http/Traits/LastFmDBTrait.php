@@ -119,17 +119,12 @@ trait LastFmDBTrait
             $tag = collect($tag);
         }
 
-        $lastFmTag = LastFmTag::firstOrCreate(
-            [
-                'name' => $tag->get('name', ''),
-                'url'  => $tag->get('url', ''),
-            ]);
-
         $lastFmArtist->tags()
-                     ->attach(
-                         $lastFmTag->id,
-                         ['count' => $tag->get('count', 0)],
-                     );
+                     ->attach(LastFmTag::firstOrCreate(
+                         [
+                             'name' => $tag->get('name', ''),
+                             'url'  => $tag->get('url', ''),
+                         ])->id);
     }
 
     /**
@@ -257,11 +252,12 @@ trait LastFmDBTrait
 
     /**
      * @param  Collection  $artistInfo
-     * @param  \Illuminate\Database\Eloquent\Model|LastFmArtist  $lastFmArtist
+     * @param  LastFmArtist  $lastFmArtist
      * @return void
      */
-    public function saveArtistsTags(Collection $artistInfo, \Illuminate\Database\Eloquent\Model|LastFmArtist $lastFmArtist) : void
+    public function saveArtistsTags(Collection $artistInfo, LastFmArtist $lastFmArtist) : void
     {
+        $lastFmArtist->tags()->sync([]);
         $this->getArtistsInfoTags($artistInfo)
              ->each(function ($tag) use ($lastFmArtist) {
                  $this->createArtistTag($tag, $lastFmArtist);
