@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Console\Commands\ImportAllChartWeeklyLastFm;
 use App\Models\LastFmPeriodTime;
 use App\Models\LastFmUser;
 use Illuminate\Support\Carbon;
@@ -145,9 +146,9 @@ trait LastFmTrait
         for ($i = $attr->get('page', 0) + 1; $i <= $attr->get('totalPages', 0); $i++) {
             $this->page($i);
             $this->userLoveTracks('lovedtracks.track')
-                 ->each(function (Collection $song) use ($songs) {
-                     $songs->push($song);
-                 });
+                ->each(function (Collection $song) use ($songs) {
+                    $songs->push($song);
+                });
         }
     }
 
@@ -165,7 +166,7 @@ trait LastFmTrait
      */
     public function getFromToPeriodTime(?LastFmPeriodTime $lastFmPeriodTime) : array
     {
-        return is_null($lastFmPeriodTime)
+        return is_null($lastFmPeriodTime) || true
             ? [$this->getDateFromToday(), $this->getDateNextWeek()]
             : [
                 $this->getDateStart($lastFmPeriodTime),
@@ -179,9 +180,9 @@ trait LastFmTrait
     public function getDateFromToday() : string
     {
         return Carbon::today()
-                     ->subHours(config('lastfm.diff_hours'))
-                     ->subWeek()
-                     ->format('U');
+            ->subHours(config('lastfm.diff_hours'))
+            ->subWeek()
+            ->format('U');
     }
 
     /**
@@ -190,8 +191,8 @@ trait LastFmTrait
     public function getDateNextWeek() : string
     {
         return Carbon::today()
-                     ->subHours(config('lastfm.diff_hours'))
-                     ->format('U');
+            ->subHours(config('lastfm.diff_hours'))
+            ->format('U');
     }
 
     /**
@@ -226,12 +227,34 @@ trait LastFmTrait
     }
 
     /**
-     * @param  string|null  $playcount
+     * @param  string|null  $playCount
      * @return bool
      */
-    function filterMinPlaysWeek(?string $playcount) : bool
+    function filterMinPlaysWeek(?string $playCount) : bool
     {
-        return (int) ($playcount ?? 0) >= config('lastfm.min_plays_week');
+        return (int) ($playCount ?? 0) >= config('lastfm.min_plays_week');
+    }
+
+    /**
+     * @param  LastFmPeriodTime  $periodTime
+     * @param  ImportAllChartWeeklyLastFm  $console
+     * @return void
+     */
+    function weeklyTrackChart(LastFmPeriodTime $periodTime, ImportAllChartWeeklyLastFm $console) : void
+    {
+        $this->getWeeklyTrackChart($periodTime)
+             ->each(function (Collection $data) use ($periodTime, $console) {
+                 if ($data->isNotEmpty()) {
+                     $console->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
+                     dd(
+                         $data,
+                     );
+                 }
+                 else {
+                     $console->error('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
+                 }
+
+             });
     }
 
 }

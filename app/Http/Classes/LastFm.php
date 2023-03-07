@@ -60,42 +60,23 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     /**
      * @return Collection
      */
-    public function getUserWeeklyChartList(ImportAllChartWeeklyLastFm $console) : Collection
+    public function getUserWeeklyChartList() : Collection
     {
-        dd($console);
         $this->query = array_merge($this->query, [
             'method' => 'user.getWeeklyChartList',
             'user'   => $this->username,
         ]);
 
         $this->pluck = 'weeklychartlist.chart';
-        $this->getFullData()
-             ->each(function (Collection $chartPeriod) {
+        return $this->getFullData();
+    }
 
-                 $periodTime = LastFmPeriodTime::firstOrNew(
-                     [
-                         'dateStart' => $this->getPeriodTimeDateStart($chartPeriod),
-                         'dateEnd'   => $this->getPeriodTimeDateEnd($chartPeriod),
-                     ]
-                 );
-
-                 $periodTime->type = 'weekly';
-                 $periodTime->save();
-
-                 $lastFm->getWeeklyTrackChart($periodTime)
-                        ->each(function (Collection $data) use ($periodTime) {
-                            if ($data->isNotEmpty()) {
-                                $this->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
-                                dd(
-                                    $data,
-                                );
-                            }
-                            else {
-                                $this->error('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
-                            }
-
-                        });
-
+    public function getChartWeekly(ImportAllChartWeeklyLastFm $console) : Collection
+    {
+        $this->getUserWeeklyChartList()
+             ->each(function (Collection $chartPeriod) use ($console) {
+                 $periodTime = $this->getLastFmPeriodTime($chartPeriod);
+                 $this->weeklyTrackChart($periodTime, $console);
              });;
     }
 
@@ -209,12 +190,14 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
             ]);
 
             $this->pluck = 'weeklytrackchart.track';
-            dd($this->getCollection());
+            /*
+            dd($this->weeklyTrackChart());
             $songs->push(
-                $this->getCollection()
-                    ->filter(function ($song) {
-                        return collect($song)->get('playcount', 0) >= 5 && collect($song)->get('playcount', 0) <= 10;
-                    }));
+                $this->weeklyTrackChart()
+                     ->filter(function ($song) {
+                         return collect($song)->get('playcount', 0) >= 5 && collect($song)->get('playcount', 0) <= 10;
+                     }));
+            */
 
             $initDate->addSecond();
         }

@@ -6,6 +6,7 @@ use App\Models\LastFmArtist;
 use App\Models\LastFmArtistStat;
 use App\Models\LastFmImageArtist;
 use App\Models\LastFmLoveSong;
+use App\Models\LastFmPeriodTime;
 use App\Models\LastFmSong;
 use App\Models\LastFmSongStat;
 use App\Models\LastFmTag;
@@ -331,6 +332,45 @@ trait LastFmDBTrait
              ->each(function ($tag) use ($lastFmSong) {
                  $this->createTagAssociation($tag, $lastFmSong);
              });
+    }
+
+
+    /**
+     * @param  Collection  $chartPeriod
+     * @return LastFmPeriodTime
+     */
+    function getLastFmPeriodTime(Collection $chartPeriod) : LastFmPeriodTime
+    {
+        $periodTime = LastFmPeriodTime::firstOrNew(
+            [
+                'dateStart' => $this->getPeriodTimeDateStart($chartPeriod),
+                'dateEnd'   => $this->getPeriodTimeDateEnd($chartPeriod),
+            ]
+        );
+
+        $periodTime->type = 'weekly';
+        $periodTime->save();
+        return $periodTime;
+    }
+
+    /**
+     * @param  Collection  $chartPeriod
+     * @return string
+     */
+    function getPeriodTimeDateStart(Collection $chartPeriod) : string
+    {
+        return (new Carbon((int) $chartPeriod->get('from')))
+            ->format($this->dateFormat());
+    }
+
+    /**
+     * @param  Collection  $chartPeriod
+     * @return string
+     */
+    function getPeriodTimeDateEnd(Collection $chartPeriod) : string
+    {
+        return (new Carbon((int) $chartPeriod->get('to')))
+            ->format($this->dateFormat());
     }
 
 }

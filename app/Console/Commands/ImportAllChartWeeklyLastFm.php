@@ -32,6 +32,6 @@ class ImportAllChartWeeklyLastFm extends Command
     public function handle(LastFm $lastFm) : void
     {
         $this->setUpChartWeeklyLastFm($lastFm);
-        $lastFm->getUserWeeklyChartList($this);
+        $lastFm->getChartWeekly($this);
     }
 }
