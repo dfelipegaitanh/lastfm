@@ -165,20 +165,73 @@ trait LastFmTrait
      */
     public function getFromToPeriodTime(?LastFmPeriodTime $lastFmPeriodTime) : array
     {
-        if (is_null($lastFmPeriodTime)) {
-            $from = Carbon::today()
-                          ->addHours(5)
-                          ->subWeek();
-            $to   = $from->addWeek()
-                         ->format('U');
-            $from = $from->subWeek()
-                         ->format('U');
-        }
-        else {
-            $from = (new Carbon($lastFmPeriodTime->dateStart))->format('U');
-            $to   = (new Carbon($lastFmPeriodTime->dateEnd))->format('U');
-        }
-        return [$from, $to];
+        return is_null($lastFmPeriodTime)
+            ? [$this->getDateFromToday(), $this->getDateNextWeek()]
+            : [
+                $this->getDateStart($lastFmPeriodTime),
+                $this->getDateEnd($lastFmPeriodTime),
+            ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDateFromToday() : string
+    {
+        return Carbon::today()
+                     ->subHours(config('lastfm.diff_hours'))
+                     ->subWeek()
+                     ->format('U');
+    }
+
+    /**
+     * @return string
+     */
+    public function getDateNextWeek() : string
+    {
+        return Carbon::today()
+                     ->subHours(config('lastfm.diff_hours'))
+                     ->format('U');
+    }
+
+    /**
+     * @param  LastFmPeriodTime  $lastFmPeriodTime
+     * @return string
+     */
+    public function getDateStart(LastFmPeriodTime $lastFmPeriodTime) : string
+    {
+        return (new Carbon($lastFmPeriodTime->dateStart))->format('U');
+    }
+
+    /**
+     * @param  LastFmPeriodTime  $lastFmPeriodTime
+     * @return string
+     */
+    public function getDateEnd(LastFmPeriodTime $lastFmPeriodTime) : string
+    {
+        return (new Carbon($lastFmPeriodTime->dateEnd))->format('U');
+    }
+
+
+    /**
+     * @param  Collection  $chart
+     * @return Collection
+     */
+    public function getWeeklyTrackChartFiltered(Collection $chart) : Collection
+    {
+        return $chart->get('track', collect())
+                     ->filter(function ($track) {
+                         return $this->filterMinPlaysWeek($track['playcount']);
+                     });
+    }
+
+    /**
+     * @param  string|null  $playcount
+     * @return bool
+     */
+    function filterMinPlaysWeek(?string $playcount) : bool
+    {
+        return (int) ($playcount ?? 0) >= config('lastfm.min_plays_week');
     }
 
 }

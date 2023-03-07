@@ -16,5 +16,6 @@ return [
     'limit_loves'    => env('LASTFM_LIMIT_LOVE', 100),
     'top_tags_count' => env('LASTFM_TOP_TAGS_COUNT_FILTER', 30),
     'end_year'       => (new Carbon())->year,
+    'diff_hours'     => env('LASTFM_DIFF_HOURS', 19),
 
 ];

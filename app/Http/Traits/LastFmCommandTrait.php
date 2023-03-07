@@ -104,4 +104,24 @@ trait LastFmCommandTrait
         session(['periodTime' => LastFmPeriodTime::firstOrCreate(['dateStart' => $dateStart, 'dateEnd' => $dateEnd])]);
     }
 
+    /**
+     * @param  Collection  $chartPeriod
+     * @return string
+     */
+    function getPeriodTimeDateStart(Collection $chartPeriod) : string
+    {
+        return (new Carbon((int) $chartPeriod->get('from')))
+            ->format($this->dateFormat());
+    }
+
+    /**
+     * @param  Collection  $chartPeriod
+     * @return string
+     */
+    function getPeriodTimeDateEnd(Collection $chartPeriod) : string
+    {
+        return (new Carbon((int) $chartPeriod->get('to')))
+            ->format($this->dateFormat());
+    }
+
 }

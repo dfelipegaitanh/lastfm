@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Http\Classes\LastFm;
 use App\Http\Traits\LastFmCommandTrait;
 use App\Models\LastFmPeriodTime;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
@@ -40,10 +39,8 @@ class ImportAllChartWeeklyLastFm extends Command
 
                    $periodTime       = LastFmPeriodTime::firstOrNew(
                        [
-                           'dateStart' => (new Carbon((int) $chartPeriod->get('from')))
-                               ->format($this->dateFormat()),
-                           'dateEnd'   => (new Carbon((int) $chartPeriod->get('to')))
-                               ->format($this->dateFormat()),
+                           'dateStart' => $this->getPeriodTimeDateStart($chartPeriod),
+                           'dateEnd'   => $this->getPeriodTimeDateEnd($chartPeriod),
                        ]
                    );
                    $periodTime->type = 'weekly';
@@ -55,8 +52,6 @@ class ImportAllChartWeeklyLastFm extends Command
                                   $this->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
                                   dd(
                                       $data,
-                                      (new Carbon($periodTime->dateStart))->format('U'),
-                                      (new Carbon($periodTime->dateEnd))->format('U'),
                                   );
                               }
                               else {
