@@ -167,7 +167,7 @@ trait LastFmTrait
     {
         if (is_null($lastFmPeriodTime)) {
             $from = Carbon::today()
-                          ->addHours(12)
+                          ->addHours(5)
                           ->subWeek();
             $to   = $from->addWeek()
                          ->format('U');

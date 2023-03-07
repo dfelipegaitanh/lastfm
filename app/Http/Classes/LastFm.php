@@ -43,15 +43,18 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getWeeklyTrackChart(?LastFmPeriodTime $lastFmPeriodTime) : Collection
     {
 
-        [$from, $to] = $this->getFromToPeriodTime($lastFmPeriodTime);
+        [$from, $to] = $this->getFromToPeriodTime(null);
+        dd([$from, $to]);
         $this->query = array_merge($this->query, [
             'method' => 'user.getweeklytrackchart',
             'user'   => $this->username,
-            'from'   => 1179057600, $from, // 1677517200,
-            'to'     => 1179662400, $to, // 1678122000,
+            'from'   => $from, // 1677517200,
+            'to'     => $to, // 1678122000,
+            'limit'  => 10,
         ]);
         $this->pluck = 'weeklytrackchart';
         $chart       = $this->getFullData();
+        dd($chart);
         return collect(
             [
                 'tracks' => $chart->get('track', collect())
