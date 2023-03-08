@@ -37,6 +37,7 @@ class LastFmSongStat extends Model
         'userplaycount',
         'last_fm_song_id',
         'last_fm_user_id',
+        'last_fm_period_time_id',
     ];
 
     /**

@@ -8,6 +8,7 @@ use App\Http\Traits\LastFmDBTrait;
 use App\Http\Traits\LastFmTrait;
 use App\Models\LastFmArtist;
 use App\Models\LastFmPeriodTime;
+use App\Models\LastFmSong;
 use App\Models\LastFmUser;
 use Barryvanveen\Lastfm\Constants;
 use Barryvanveen\Lastfm\Exceptions\InvalidPeriodException;
@@ -53,7 +54,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         ]);
         $this->pluck = 'weeklytrackchart';
         $chart       = $this->getFullData();
-        return collect(['tracks' => $this->getWeeklyTrackChartFiltered($chart)]);
+        return collect(
+            [
+                'tracks' => $this->getWeeklyTrackChartFiltered($chart)
+                                 ->toCollection()
+            ]);
 
     }
 
@@ -71,11 +76,18 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         return $this->getFullData();
     }
 
+    /**
+     * @param  ImportAllChartWeeklyLastFm  $console
+     * @return Collection
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function getChartWeekly(ImportAllChartWeeklyLastFm $console) : Collection
     {
         $this->getUserWeeklyChartList()
              ->each(function (Collection $chartPeriod) use ($console) {
                  $periodTime = $this->getLastFmPeriodTime($chartPeriod);
+                 session(['periodTime' => $periodTime]);
                  $this->weeklyTrackChart($periodTime, $console);
              });;
     }
@@ -90,15 +102,15 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     {
 
         $this->getLovedTracksCollect()
-            ->each(function (Collection $song) use ($console) {
-                $lastFmArtist = $this->getLastFmArtistFromDB($this->getLastFmArtistFromAPI($song));
-                $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
-                $this->getLastFmLoveSong($lastFmSong, $song);
-                $this->updateLastFmSongInfo($song, $lastFmSong);
-                $console->info("Artist: {$lastFmArtist->name}");
-                $console->warn("Song: {$song->get('name', '')}");
-                $console->newLine();
-            });
+             ->each(function (Collection $song) use ($console) {
+                 $lastFmArtist = $this->getLastFmArtistFromDB($this->getLastFmArtistFromAPI($song));
+                 $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
+                 $this->getLastFmLoveSong($lastFmSong, $song);
+                 $this->updateLastFmSongInfo($lastFmSong);
+                 $console->info("Artist: {$lastFmArtist->name}");
+                 $console->warn("Song: {$song->get('name', '')}");
+                 $console->newLine();
+             });
     }
 
     /**
@@ -109,7 +121,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     {
 
         $lastFmArtist->tags()
-            ->sync([]);
+                     ->sync([]);
 
         $this->query = array_merge($this->query, [
             'method' => 'artist.getTopTags',
@@ -119,9 +131,9 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
         $this->pluck = 'toptags.tag';
 
         return $this->getFullData()
-            ->filter(function (Collection $tag) {
-                return $tag->get('count') >= config('lastfm.top_tags_count');
-            });
+                    ->filter(function (Collection $tag) {
+                        return $tag->get('count') >= config('lastfm.top_tags_count');
+                    });
     }
 
     /**
@@ -130,7 +142,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getUserTopAlbums() : array
     {
         return parent::userTopAlbums($this->username)
-            ->get();
+                     ->get();
     }
 
     /**
@@ -140,9 +152,9 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getUserTopTracks() : array
     {
         return parent::userTopTracks($this->username)
-            ->period(Constants::PERIOD_WEEK)
-            ->limit(10)
-            ->get();
+                     ->period(Constants::PERIOD_WEEK)
+                     ->limit(10)
+                     ->get();
     }
 
     /**
@@ -151,7 +163,7 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     public function getUserInfo() : Collection
     {
         return $this->userInfo($this->username)
-            ->getFullData();
+                    ->getFullData();
     }
 
 
@@ -207,14 +219,14 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param  Collection  $data
+     * @param  LastFmArtist  $lastFmArtist
      * @return Collection
      */
-    function getArtistInfo(Collection $data) : Collection
+    function getArtistInfo(LastFmArtist $lastFmArtist) : Collection
     {
         $this->query = array_merge($this->query, [
             'method'      => 'artist.getInfo',
-            'artist'      => $data->get('name', ''),
+            'artist'      => $lastFmArtist->name,
             'mbid'        => '',
             'autocorrect' => 1,
         ]);
@@ -241,15 +253,15 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
-     * @param  Collection  $data
+     * @param  LastFmSong  $lastFmSong
      * @return Collection
      */
-    public function trackGetInfo(Collection $data) : Collection
+    public function trackGetInfo(LastFmSong $lastFmSong) : Collection
     {
         $this->query = array_merge($this->query, [
             'method' => 'track.getInfo',
-            'track'  => $data->get('name', ''),
-            'artist' => collect($data->get('artist', []))->get('name', ''),
+            'track'  => $lastFmSong->name,
+            'artist' => $lastFmSong->artist->name,
             'mbid'   => '',
         ]);
         $this->pluck = 'track';

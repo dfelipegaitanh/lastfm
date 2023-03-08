@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Console\Commands\ImportAllChartWeeklyLastFm;
 use App\Models\LastFmArtist;
 use App\Models\LastFmArtistStat;
 use App\Models\LastFmImageArtist;
@@ -22,17 +23,20 @@ trait LastFmDBTrait
 
     /**
      * @param  Collection  $artist
+     * @param  string  $artistKey
      * @return LastFmArtist
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    function getLastFmArtistFromDB(Collection $artist) : LastFmArtist
+    function getLastFmArtistFromDB(Collection $artist, string $artistKey = 'name') : LastFmArtist
     {
-        $lastFmArtist       = LastFmArtist::firstOrNew(['name' => $artist->get('name')]);
-        $lastFmArtist->url  = $this->getKeyValue($artist, 'url', false);
-        $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
-        $lastFmArtist->save();
-        $this->updateLastFmArtistInfo($lastFmArtist, $artist);
+        $lastFmArtist = LastFmArtist::firstOrNew(['name' => $artist->get($artistKey)]);
+        if (is_null($lastFmArtist->id)) {
+            $lastFmArtist->url  = $this->getKeyValue($artist, 'url', false);
+            $lastFmArtist->mbid = $this->getKeyValue($artist, 'mbid', false);
+            $lastFmArtist->save();
+        }
+        $this->updateLastFmArtistInfo($lastFmArtist);
         return $lastFmArtist;
     }
 
@@ -208,31 +212,30 @@ trait LastFmDBTrait
      */
     public function saveArtistStats(Collection $artistInfo, LastFmArtist $lastFmArtist) : void
     {
-
-        $artistStats = LastFmArtistStat::firstOrNew(
+        LastFmArtistStat::firstOrCreate(
             [
-                'userplaycount'     => $this->getArtistStatsUserPlayCount($artistInfo),
-                'last_fm_artist_id' => $lastFmArtist->id,
-                'last_fm_user_id'   => $this->lastFmUser->id,
+                'userplaycount'          => $this->getArtistStatsUserPlayCount($artistInfo),
+                'last_fm_artist_id'      => $lastFmArtist->id,
+                'last_fm_user_id'        => $this->lastFmUser->id,
+                'last_fm_period_time_id' => session()->get('periodTime')->id,
             ]
         );
-        $artistStats->periodTime()->associate(session()->get('periodTime'));
-        $artistStats->save();
     }
 
     /**
      * @param  Collection  $artistInfo
+     * @param  LastFmArtist  $lastFmArtist
      * @return void
      */
-    public function saveArtistImages(Collection $artistInfo) : void
+    public function saveArtistImages(Collection $artistInfo, LastFmArtist $lastFmArtist) : void
     {
-        LastFmImageArtist::where('last_fm_artist_id', $this->lastFmUser->id)
+        LastFmImageArtist::where('last_fm_artist_id', $lastFmArtist->id)
                          ->update(['actual' => false]);
         $artistInfo->get('image', collect())
-                   ->each(function ($image) {
+                   ->each(function ($image) use ($lastFmArtist) {
                        $image = LastFmImageArtist::firstOrCreate(
                            [
-                               'last_fm_artist_id' => $this->lastFmUser->id,
+                               'last_fm_artist_id' => $lastFmArtist->id,
                                'image'             => $image['#text'],
                                'size'              => $image['size'],
                            ]);
@@ -268,56 +271,57 @@ trait LastFmDBTrait
 
     /**
      * @param  LastFmArtist  $lastFmArtist
-     * @param  Collection  $artist
      * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function updateLastFmArtistInfo(LastFmArtist $lastFmArtist, Collection $artist) : void
+    public function updateLastFmArtistInfo(LastFmArtist $lastFmArtist) : void
     {
         if (!$this->lastFmArtistInSession($lastFmArtist)) {
             session()->push('artists.processed', $lastFmArtist->id);
-            $artistInfo = $this->getArtistInfo($artist);
-            $this->saveArtistImages($artistInfo);
+            $artistInfo = $this->getArtistInfo($lastFmArtist);
+            $this->saveArtistImages($artistInfo, $lastFmArtist);
             $this->saveArtistStats($artistInfo, $lastFmArtist);
             $this->saveArtistsTag($artistInfo, $lastFmArtist);
         }
     }
 
     /**
-     * @param  Collection  $song
      * @param  LastFmSong  $lastFmSong
-     * @return void
+     * @param  Collection|null  $song
+     * @return Collection
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    function updateLastFmSongInfo(Collection $song, LastFmSong $lastFmSong) : void
+    function updateLastFmSongInfo(LastFmSong $lastFmSong, ?Collection $song = null) : Collection
     {
-        $trackInfo = $this->trackGetInfo($song);
+        $trackInfo = $this->trackGetInfo($lastFmSong);
         if ($trackInfo->isNotEmpty()) {
-            $this->saveSongStats($trackInfo, $lastFmSong);
+            $this->saveSongStats($trackInfo, $lastFmSong, $song);
             $this->saveSongTags($lastFmSong, $trackInfo);
         }
+        return $trackInfo;
     }
 
     /**
      * @param  Collection  $trackInfo
      * @param  LastFmSong  $lastFmSong
+     * @param  Collection|null  $song
      * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function saveSongStats(Collection $trackInfo, LastFmSong $lastFmSong) : void
+    public function saveSongStats(Collection $trackInfo, LastFmSong $lastFmSong, ?Collection $song) : void
     {
-        $songStats = LastFmSongStat::firstOrNew(
+
+        LastFmSongStat::firstOrCreate(
             [
-                'userplaycount'   => $this->getKeyValue($trackInfo, 'userplaycount'),
-                'last_fm_song_id' => $lastFmSong->id,
-                'last_fm_user_id' => $this->lastFmUser->id,
+                'userplaycount'          => $this->getSongStatsUserPlayCount($song, $trackInfo),
+                'last_fm_song_id'        => $lastFmSong->id,
+                'last_fm_user_id'        => $this->lastFmUser->id,
+                'last_fm_period_time_id' => session()->get('periodTime')->id,
             ]
         );
-        $songStats->periodTime()->associate(session()->get('periodTime'));
-        $songStats->save();
     }
 
     /**
@@ -371,6 +375,95 @@ trait LastFmDBTrait
     {
         return (new Carbon((int) $chartPeriod->get('to')))
             ->format($this->dateFormat());
+    }
+
+    /**
+     * @param  Collection|null  $song
+     * @param  Collection  $trackInfo
+     * @return \Closure|int|mixed|string
+     */
+    public function getSongStatsUserPlayCount(?Collection $song, Collection $trackInfo) : mixed
+    {
+        return !is_null($song)
+            ? $song->get('playcount', 0)
+            : $this->getKeyValue($trackInfo, 'userplaycount');
+    }
+
+    /**
+     * @param  LastFmPeriodTime  $periodTime
+     * @param  bool  $isCompleted
+     * @return void
+     */
+    function updatePeriodTimeIsCompleted(LastFmPeriodTime $periodTime, bool $isCompleted = true) : void
+    {
+        $periodTime->is_completed = $isCompleted;
+        $periodTime->save();
+    }
+
+    /**
+     * @param  LastFmPeriodTime  $periodTime
+     * @param  Collection  $songs
+     * @param  ImportAllChartWeeklyLastFm  $console
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    function processWeeklyTrackChart(LastFmPeriodTime $periodTime, Collection $songs, ImportAllChartWeeklyLastFm $console) : void
+    {
+        $console->alert('Period ID: '.$periodTime->id.'. From '.$periodTime->dateStart.' To '.$periodTime->dateEnd);
+        if ($songs->isNotEmpty()) {
+
+            $this->reProcessPeriodStats($console, $periodTime);
+
+            $console->info('This period have '.$songs->count().' songs');
+            $this->createOrUpdateSongsData($songs, $console);
+
+            $console->table(
+                ['Artist', 'Song'],
+                $periodTime->songsWithArtis()->toArray()
+            );
+        }
+        else {
+            $console->error('This period doesn\'t have any songs');
+        }
+
+        $this->updatePeriodTimeIsCompleted($periodTime);
+    }
+
+    /**
+     * @param  Collection  $songs
+     * @param  ImportAllChartWeeklyLastFm  $console
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function createOrUpdateSongsData(Collection $songs, ImportAllChartWeeklyLastFm $console) : void
+    {
+        $bar = $console->getOutput()->createProgressBar($songs->count());
+        $bar->start();
+        $songs->each(function (Collection $song) use ($console, $bar) {
+            $lastFmArtist = $this->getLastFmArtistFromDB($this->getLastFmArtistFromAPI($song), "#text");
+            $lastFmSong   = $this->getLastFmSong($song, $lastFmArtist);
+            $this->updateLastFmSongInfo($lastFmSong, $song);
+            $bar->advance();
+        });
+        $bar->finish();
+        $console->newLine();
+    }
+
+    /**
+     * @param  ImportAllChartWeeklyLastFm  $console
+     * @param  LastFmPeriodTime  $periodTime
+     * @return void
+     */
+    public function reProcessPeriodStats(ImportAllChartWeeklyLastFm $console, LastFmPeriodTime $periodTime) : void
+    {
+        if ((int) $console->option('reProcess') === 1) {
+            $periodTime->songsStats()
+                       ->delete();
+            $periodTime->artistStats()
+                       ->delete();
+        }
     }
 
 }

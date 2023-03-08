@@ -7,6 +7,8 @@ use App\Models\LastFmPeriodTime;
 use App\Models\LastFmUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 trait LastFmTrait
 {
@@ -239,40 +241,20 @@ trait LastFmTrait
      * @param  LastFmPeriodTime  $periodTime
      * @param  ImportAllChartWeeklyLastFm  $console
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     function weeklyTrackChart(LastFmPeriodTime $periodTime, ImportAllChartWeeklyLastFm $console) : void
     {
-        if ($periodTime->is_completed === true) {
-            $console->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' already processed');
+        if ($periodTime->is_completed === true && (int) $console->option('reProcess') === 0) {
+            $console->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' has already been processed');
             return;
         }
         $this->getWeeklyTrackChart($periodTime)
-             ->each(function (Collection $data) use ($periodTime, $console) {
-                 if ($data->isNotEmpty()) {
-                     $console->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
-                     dd(
-                         $data,
-                     );
-                 }
-                 else {
-                     $console->error('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
-                 }
-
-                 $this->updatePeriodTimeIsCompleted($periodTime);
-
+             ->each(function (Collection $songs) use ($periodTime, $console) {
+                 $this->processWeeklyTrackChart($periodTime, $songs, $console);
              });
 
-    }
-
-    /**
-     * @param  LastFmPeriodTime  $periodTime
-     * @param  bool  $isCompleted
-     * @return void
-     */
-    function updatePeriodTimeIsCompleted(LastFmPeriodTime $periodTime, bool $isCompleted = true) : void
-    {
-        $periodTime->is_completed = $isCompleted;
-        $periodTime->save();
     }
 
 }

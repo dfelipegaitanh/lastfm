@@ -54,6 +54,7 @@ trait LastFmCommandTrait
     public function setUpChartWeeklyLastFm(LastFm &$lastFm) : void
     {
         $lastFm->setUsername($this->getUsername());
+        $lastFm->setLastFmUser($this->getLastFmUser($lastFm->getUserInfo()));
     }
 
 

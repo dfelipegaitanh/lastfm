@@ -10,6 +10,8 @@ use App\Models\LastFmImageArtist;
 use App\Models\LastFmLoveSong;
 use App\Models\LastFmPeriodTime;
 use App\Models\LastFmSong;
+use App\Models\LastFmSongLastFmTag;
+use App\Models\LastFmSongStat;
 use App\Models\LastFmTag;
 use App\Models\LastFmUser;
 use App\Models\LastFmUserStat;
@@ -35,6 +37,8 @@ class DatabaseSeeder extends Seeder
             LastFmLoveSong::truncate();
             LastFmSong::truncate();
             LastFmUser::truncate();
+            LastFmSongLastFmTag::truncate();
+            LastFmSongStat::truncate();
         });
     }
 }

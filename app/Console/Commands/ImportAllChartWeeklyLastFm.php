@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Http\Classes\LastFm;
 use App\Http\Traits\LastFmCommandTrait;
 use Illuminate\Console\Command;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ImportAllChartWeeklyLastFm extends Command
 {
@@ -16,7 +18,7 @@ class ImportAllChartWeeklyLastFm extends Command
      *
      * @var string
      */
-    protected $signature = 'lastfm:chartWeekly {user?}';
+    protected $signature = 'lastfm:chartWeekly {user?} {--reProcess=0}';
 
     /**
      * The console command description.
@@ -28,6 +30,8 @@ class ImportAllChartWeeklyLastFm extends Command
     /**
      * @param  LastFm  $lastFm
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function handle(LastFm $lastFm) : void
     {
