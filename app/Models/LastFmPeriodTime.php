@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $dateStart
  * @property string|null $dateEnd
  * @property string $type
+ * @property bool $is_completed
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime newModelQuery()
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereDateEnd($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereDateStart($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereIsCompleted($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmPeriodTime whereUpdatedAt($value)
  * @mixin \Eloquent
@@ -28,6 +30,10 @@ use Illuminate\Database\Eloquent\Model;
 class LastFmPeriodTime extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'is_completed' => 'boolean'
+    ];
 
     protected $fillable = [
         'dateStart',

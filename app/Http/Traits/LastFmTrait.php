@@ -166,7 +166,7 @@ trait LastFmTrait
      */
     public function getFromToPeriodTime(?LastFmPeriodTime $lastFmPeriodTime) : array
     {
-        return is_null($lastFmPeriodTime) || true
+        return is_null($lastFmPeriodTime)
             ? [$this->getDateFromToday(), $this->getDateNextWeek()]
             : [
                 $this->getDateStart($lastFmPeriodTime),
@@ -242,6 +242,10 @@ trait LastFmTrait
      */
     function weeklyTrackChart(LastFmPeriodTime $periodTime, ImportAllChartWeeklyLastFm $console) : void
     {
+        if ($periodTime->is_completed === true) {
+            $console->info('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' already processed');
+            return;
+        }
         $this->getWeeklyTrackChart($periodTime)
              ->each(function (Collection $data) use ($periodTime, $console) {
                  if ($data->isNotEmpty()) {
@@ -254,7 +258,21 @@ trait LastFmTrait
                      $console->error('Period From '.$periodTime->dateStart.' To '.$periodTime->dateEnd.' have '.$data->count().' songs');
                  }
 
+                 $this->updatePeriodTimeIsCompleted($periodTime);
+
              });
+
+    }
+
+    /**
+     * @param  LastFmPeriodTime  $periodTime
+     * @param  bool  $isCompleted
+     * @return void
+     */
+    function updatePeriodTimeIsCompleted(LastFmPeriodTime $periodTime, bool $isCompleted = true) : void
+    {
+        $periodTime->is_completed = $isCompleted;
+        $periodTime->save();
     }
 
 }
