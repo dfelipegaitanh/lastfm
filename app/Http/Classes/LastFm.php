@@ -78,11 +78,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
 
     /**
      * @param  ImportAllChartWeeklyLastFm  $console
-     * @return Collection
+     * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function getChartWeekly(ImportAllChartWeeklyLastFm $console) : Collection
+    public function getChartWeekly(ImportAllChartWeeklyLastFm $console) : void
     {
         $this->getUserWeeklyChartList()
              ->each(function (Collection $chartPeriod) use ($console) {
@@ -237,9 +237,9 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
             $artist->offsetUnset('bio');
 
             return $artist;
-        } catch (Exception) {
+        } catch (Exception $e) {
             $this->pluck = null;
-            dd($this->query, $this->getFullData());
+            dd($this->query, $this->getFullData(), $e->getMessage());
         }
 
     }

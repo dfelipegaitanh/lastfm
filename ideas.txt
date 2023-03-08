@@ -20,6 +20,10 @@ Imports
 
 * COUNT NUMBER OF API CALLS
 
+* WEEKLY CHARTS
+     * SHOW TOTAL SONG IN THAT PERIOD
+     * UPDATE ARTIST STATS
+
 Base de datos
     * LastFM
         * Artist (Done)
