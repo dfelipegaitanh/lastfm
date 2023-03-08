@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\LastFmUser $periodTime
+ * @property-read \App\Models\LastFmSong|null $song
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmSongStat newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmSongStat newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LastFmSongStat query()
@@ -46,5 +47,10 @@ class LastFmSongStat extends Model
     public function periodTime() : BelongsTo
     {
         return $this->belongsTo(LastFmUser::class, 'last_fm_period_time_id');
+    }
+
+    public function song() : BelongsTo
+    {
+        return $this->belongsTo(LastFmSong::class, 'last_fm_song_id');
     }
 }

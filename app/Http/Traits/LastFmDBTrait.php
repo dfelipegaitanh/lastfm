@@ -419,7 +419,7 @@ trait LastFmDBTrait
             $this->createOrUpdateSongsData($songs, $console);
 
             $console->table(
-                ['Artist', 'Song'],
+                ['Artist', 'Song', 'Count'],
                 $periodTime->songsWithArtis()->toArray()
             );
         }

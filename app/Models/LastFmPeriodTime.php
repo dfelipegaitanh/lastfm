@@ -80,9 +80,13 @@ class LastFmPeriodTime extends Model
      */
     public function songsWithArtis() : Collection|\Illuminate\Support\Collection
     {
-        return $this->songs
-            ->map(function (LastFmSong $song) {
-                return [$song->artist->name, $song->name];
+        return $this->songsStats
+            ->map(function (LastFmSongStat $fmSongStat) {
+                return [
+                    $fmSongStat->song->artist->name,
+                    $fmSongStat->song->name,
+                    $fmSongStat->userplaycount,
+                ];
             });
     }
 
