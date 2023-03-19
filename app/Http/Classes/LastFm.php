@@ -88,6 +88,9 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
              ->each(function (Collection $chartPeriod) use ($console) {
                  $periodTime = $this->getLastFmPeriodTime($chartPeriod);
                  session(['periodTime' => $periodTime]);
+
+                 $this->reProcessPeriodStats($console, $periodTime);
+
                  $this->weeklyTrackChart($periodTime, $console);
              });;
     }

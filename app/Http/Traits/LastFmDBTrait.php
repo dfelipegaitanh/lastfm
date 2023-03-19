@@ -413,8 +413,6 @@ trait LastFmDBTrait
         $console->alert('Period ID: '.$periodTime->id.'. From '.$periodTime->dateStart.' To '.$periodTime->dateEnd);
         if ($songs->isNotEmpty()) {
 
-            $this->reProcessPeriodStats($console, $periodTime);
-
             $console->info('This period have '.$songs->count().' songs');
             $this->createOrUpdateSongsData($songs, $console);
 
