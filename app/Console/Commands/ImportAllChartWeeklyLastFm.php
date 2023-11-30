@@ -28,14 +28,21 @@ class ImportAllChartWeeklyLastFm extends Command
     protected $description = 'Command description';
 
     /**
+     * @var \App\Http\Classes\LastFm
+     */
+    private LastFm $lastFm;
+
+    /**
      * @param  LastFm  $lastFm
+     *
      * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function handle(LastFm $lastFm) : void
+    public function handle(LastFm $lastFm): void
     {
-        $this->setUpChartWeeklyLastFm($lastFm);
-        $lastFm->getChartWeekly($this);
+        $this->lastFm = $lastFm;
+        $this->setUpChartWeeklyLastFm();
+        $this->lastFm->getChartWeekly($this);
     }
 }

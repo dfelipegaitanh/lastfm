@@ -48,13 +48,12 @@ trait LastFmCommandTrait
     }
 
     /**
-     * @param  LastFm  $lastFm
      * @return void
      */
-    public function setUpChartWeeklyLastFm(LastFm &$lastFm) : void
+    public function setUpChartWeeklyLastFm(): void
     {
-        $lastFm->setUsername($this->getUsername());
-        $lastFm->setLastFmUser($this->getLastFmUser($lastFm->getUserInfo()));
+        $this->lastFm->setUsername($this->getUsername());
+        $this->lastFm->setLastFmUser($this->getLastFmUser($this->lastFm->getUserInfo()));
     }
 
 
