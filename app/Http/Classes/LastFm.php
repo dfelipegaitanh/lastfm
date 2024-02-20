@@ -63,6 +63,11 @@ class LastFm extends \Barryvanveen\Lastfm\Lastfm
     }
 
     /**
+     * Trae objeto
+     * - weeklychartlist user="RJ"
+     *   - chart from="1108296002" to="1108900802"
+     * - /weeklychartlist
+     *
      * @return Collection
      */
     public function getUserWeeklyChartList() : Collection

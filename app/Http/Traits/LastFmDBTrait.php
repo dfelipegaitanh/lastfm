@@ -358,7 +358,11 @@ trait LastFmDBTrait
     }
 
     /**
+     *
+     * Trate e
+     *
      * @param  Collection  $chartPeriod
+     *
      * @return string
      */
     function getPeriodTimeDateStart(Collection $chartPeriod) : string
